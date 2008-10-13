@@ -1,14 +1,14 @@
-repoze.folder
--------------
+Using repoze.folder
+===================
 
 :mod:`repoze.folder` provides a barebones folder implementation with
 object event support.  Folders have a dictionary-like interface and
 emit "object events" on the addition and removal of objects when
 certain methods of this interface are exercised.
 
-Using a folder::
+Using a folder:
 
-.. code-block::
+.. code-block:: python
    :linenos:
 
    >>> from repoze.folder import Folder

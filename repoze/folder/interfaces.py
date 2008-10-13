@@ -72,7 +72,7 @@ class IFolder(Interface):
         ``ObjectWillBeAddedEvent`` event will be emitted before the
         object obtains a ``__name__`` or ``__parent__`` value.  After
         the object obtains a ``__name__`` and ``__parent__`` value, an
-        ObjecAddedEvent will be emitted."""
+        ``ObjectAddedEvent`` will be emitted."""
     def __delitem__(name):
         """ Delete an object value from this folder that is already
         present in the folder with the name ``name``.  If the object

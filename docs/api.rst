@@ -1,14 +1,31 @@
-API Documentation for repoze.atemplate
+API Documentation for repoze.folder
 ======================================
 
-Interfaces
-----------
+Using a folder
+--------------
 
-Document interfaces here.  You may want to use the ``.. autointerface::``
-directive provided by :mod:`repoze.sphinx.autointerface`, in which case
-you will need to add it to the extensions in `conf.py`.
+.. code-block:: python
+   :linenos:
 
-Exceptions
-----------
+   from repoze.folder import Folder
+   f = Folder()
 
-Document any custom exceptions here.
+Folder interface
+----------------
+
+.. autointerface:: repoze.folder.interfaces.IFolder
+
+Events sent when ``Folder.__setitem__`` called
+----------------------------------------------
+
+.. autointerface:: repoze.folder.interfaces.IObjectWillBeAddedEvent
+
+.. autointerface:: repoze.folder.interfaces.IObjectAddedEvent
+
+Events sent when ``Folder.__delitem__`` called
+----------------------------------------------
+
+.. autointerface:: repoze.folder.interfaces.IObjectWillBeRemovedEvent
+
+.. autointerface:: repoze.folder.interfaces.IObjectRemovedEvent
+

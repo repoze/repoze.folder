@@ -1,8 +1,8 @@
 Documentation for repoze.folder
 ===============================
 
-:mod:`repoze.lemonade` provides a barebones ZODB ``folder``
-(container) implementation with object event support.
+:mod:`repoze.folder` provides a barebones ZODB ``folder`` (container)
+implementation with object event support.
 
 .. toctree::
    :maxdepth: 2
