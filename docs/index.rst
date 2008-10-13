@@ -9,7 +9,7 @@ implementation with object event support.
 
    narr.rst
    api.rst
-
+   changes.rst
 
 Indices and tables
 ------------------

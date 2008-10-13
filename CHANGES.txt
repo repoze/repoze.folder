@@ -1,8 +1,5 @@
-repoze.folder Changelog
-=======================
-
 Next release
-------------
+-------------
 
 - Update sphinx docs, using interfaces
 
