@@ -1,7 +1,13 @@
-repoze.atemplate Changelog
-==========================
+repoze.folder Changelog
+=======================
 
-0.1 (unreleaesd)
-----------------
+Next release
+------------
+
+- Update sphinx docs, using interfaces
+
+
+0.1 (2008/10/13)
+-----------------
 
 - Initial release.
