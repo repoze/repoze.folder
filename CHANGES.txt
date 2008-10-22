@@ -1,8 +1,9 @@
-Next release
--------------
+0.2 (2008/10/22)
+----------------
 
 - Update sphinx docs, using interfaces
 
+- Add folder __name__ to repr and str of folder in output.
 
 0.1 (2008/10/13)
 -----------------

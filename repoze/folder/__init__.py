@@ -98,4 +98,12 @@ class Folder(Persistent):
             del other.__name__
         del self.data[name]
         objectEventNotify(ObjectRemovedEvent(other, self, name))
+
+    def __repr__(self):
+        klass = self.__class__
+        classname = '%s.%s' % (klass.__module__, klass.__name__)
+        return '<%s object %r at %#x>' % (classname,
+                                          self.__name__,
+                                          id(self))
+    
         

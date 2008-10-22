@@ -130,6 +130,22 @@ class FolderTests(unittest.TestCase, PlacelessSetup):
         self.failIf(hasattr(dummy, '__parent__'))
         self.failIf(hasattr(dummy, '__name__'))
 
+    def test_repr(self):
+        folder = self._makeOne()
+        folder.__name__ = 'thefolder'
+        r = repr(folder)
+        self.failUnless(
+            "<repoze.folder.Folder object 'thefolder' at " in r)
+        self.failUnless(r.endswith('>'))
+
+    def test_str(self):
+        folder = self._makeOne()
+        folder.__name__ = 'thefolder'
+        r = str(folder)
+        self.failUnless(
+            "<repoze.folder.Folder object 'thefolder' at " in r)
+        self.failUnless(r.endswith('>'))
+        
 class DummyModel:
     pass
 
