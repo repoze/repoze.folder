@@ -32,9 +32,6 @@ class IObjectRemovedEvent(IObjectEvent):
 
 class IFolder(Interface):
     """ Folder """
-    def __init__(data=None):
-        """ Initialize the folder using ``data`` (should be an OOBTree
-        object) or an empty OOBTree object if ``data`` is ``None``."""
     def keys():
         """ Return a ``BTreeItems`` sequence representing the keys
         (object names) present in the folder.  Use list() against this
