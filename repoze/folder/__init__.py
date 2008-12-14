@@ -135,9 +135,12 @@ class Folder(Persistent):
     
 def unicodify(name):
     try:
-        name = unicode(name, 'utf-8')
+        name = unicode(name)
     except UnicodeError:
-        raise TypeError(
-            "Non-unicode names must be decodeable using utf-8 (%s)" % name)
+        try:
+            name = unicode(name, 'utf-8')
+        except UnicodeError:
+            raise TypeError(
+                "Non-unicode names must be decodeable using utf-8 (%s)" % name)
     return name
 
