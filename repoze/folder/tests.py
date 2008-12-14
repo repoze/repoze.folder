@@ -143,6 +143,27 @@ class FolderTests(unittest.TestCase, PlacelessSetup):
         folder[name] = DummyModel()
         self.failUnless(folder[name])
 
+class UnicodifyTests(unittest.TestCase):
+    def _callFUT(self, name, encoding):
+        from repoze.folder import unicodify
+        return unicodify(name, encoding)
+
+    def test_ascii_default_encoding_good(self):
+        name = self._callFUT('abc', 'ascii')
+        self.assertEqual(name, u'abc')
+
+    def test_ascii_default_encoding_bad(self):
+        name = unicode('La Pe\xc3\xb1a', 'utf-8').encode('utf-16')
+        self.assertRaises(TypeError, self._callFUT, name, 'ascii')
+        
+    def test_utf_8_default_encoding_good(self):
+        name = self._callFUT('abc', 'utf-8')
+        self.assertEqual(name, u'abc')
+
+    def test_utf_8_default_encoding_bad(self):
+        name = unicode('La Pe\xc3\xb1a', 'utf-8').encode('utf-16')
+        self.assertRaises(TypeError, self._callFUT, name, 'utf-8')
+
 class DummyModel:
     pass
 

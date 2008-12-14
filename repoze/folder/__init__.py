@@ -1,3 +1,5 @@
+import sys
+
 from zope.interface import implements
 
 from zope.component.event import objectEventNotify
@@ -12,9 +14,25 @@ from repoze.folder.events import ObjectWillBeRemovedEvent
 
 from BTrees.OOBTree import OOBTree
 
+sysencoding = sys.getdefaultencoding()
+
+unidoc = """\
+        `name`` will optimally be a Unicode string, because keys used
+        to look up objects are stored as Unicode.  However, if
+        ``name`` is a byte string, the system attempts to decode it to
+        Unicode using the default system encoding; if it cannot be
+        decoded using the system encoding, the system attempts to
+        decode it using the UTF-8 codec; and if that fails, a
+        TypeError is raised.
+"""
+
 class Folder(Persistent):
-    """A Folder implementation.  The keys are Unicode strings, the
-    values are arbitrary objects. """
+    """
+    A folder implementation which acts much like a Python dictionary.
+    The keys are Unicode strings; the values are arbitrary Python
+    objects.
+    """
+
     __name__ = None
     __parent__ = None
 
@@ -29,7 +47,8 @@ class Folder(Persistent):
     def keys(self):
         """
         Returns an iterable object containing the names associated
-        with the objects that appear in the folder.
+        with the objects that appear in the folder.  Each name is
+        guaranteed to be a Unicode string.
         """
         return self.data.keys()
 
@@ -46,15 +65,15 @@ class Folder(Persistent):
         """
         Return a sequence-like object containing tuples of the form
         (name, object) for the objects that appear in the folder.
+        Each name is guaranteed to be a Unicode string.
         """
         return self.data.items()
 
     def __getitem__(self, name):
         """
         Return the named object, or raise ``KeyError`` if the object
-        is not found.  If necessary, the name is decoded to Unicode
-        using the UTF-8 encoding before the test is performed; if it
-        cannot be decoded, a TypeError is raised.
+        is not found.
+
         """
         name = unicodify(name)
         return self.data[name]
@@ -63,21 +82,19 @@ class Folder(Persistent):
         """
         Return the named object, or the value of the `default`
         argument if the object is not found.  Return the named object,
-        or raise ``KeyError`` if the object is not found.  If
-        necessary, the name is decoded to Unicode using the UTF-8
-        encoding before it is used to look up the object; if it cannot
-        be decoded, a TypeError is raised.
-        """
+        or raise ``KeyError`` if the object is not found.
+
+        %s
+        """ % unidoc
         name = unicodify(name)
         return self.data.get(name, default)
 
     def __contains__(self, name):
         """
-        Return true if the named object appears in the folder.  If
-        necessary, the name is decoded to Unicode using the UTF-8
-        encoding before it is used to perform the test; if it cannot
-        be decoded, a TypeError is raised.
-        """
+        Return true if the named object appears in the folder.
+
+        %s
+        """ % unidoc
         name = unicodify(name)
         return self.data.has_key(name)
 
@@ -87,11 +104,11 @@ class Folder(Persistent):
     def __setitem__(self, name, other):
         """
         Add the given object to the folder under the given name.  The
-        name must be a string or a unicode object and cannot be the
-        empty string.  If necessary, the name is decoded to Unicode
-        using the UTF-8 encoding before the object is stored; if it
-        cannot be decoded, a TypeError is raised.
-        """
+        name must not be the empty string nor may it be of a type other
+        than ``basestring`` (a TypeError is raised if either case is true).
+
+        %s
+        """ % unidoc
         if not isinstance(name, basestring):
             raise TypeError("Name must be a string rather than a %s" %
                             name.__class__.__name__)
@@ -112,10 +129,10 @@ class Folder(Persistent):
     def __delitem__(self, name):
         """
         Delete the named object from the folder. Raises a KeyError if
-        the object is not found. If necessary, the name is decoded to
-        Unicode using the UTF-8 encoding before the object is deleted;
-        if it cannot be decoded, a TypeError is raised.
-        """
+        the object is not found.
+
+        %s
+        """ % unidoc
         name = unicodify(name)
         other = self.data[name]
         objectEventNotify(ObjectWillBeRemovedEvent(other, self, name))
@@ -133,14 +150,17 @@ class Folder(Persistent):
                                           self.__name__,
                                           id(self))
     
-def unicodify(name):
+def unicodify(name, encoding=sysencoding):
     try:
-        name = unicode(name)
+        name = unicode(name, encoding)
     except UnicodeError:
         try:
             name = unicode(name, 'utf-8')
         except UnicodeError:
             raise TypeError(
-                "Non-unicode names must be decodeable using utf-8 (%s)" % name)
+                'Byte string names be decodeable using either the system '
+                'encoding of %s or the utf-8 encoding (%s)' % (encoding, name)
+                )
+
     return name
 

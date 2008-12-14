@@ -1,3 +1,9 @@
+Next release
+
+ Add tests for ``unicodify`` and make docs about to-Unicode
+ convenience conversion from byte strings (and error messages)
+ slightly clearer.
+
 0.3.2 (2008/12/13)
 
  Yeah.  0.3.1 was another brownbag, as we need to try to decode ASCII

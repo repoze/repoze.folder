@@ -1,15 +1,6 @@
 API Documentation for repoze.folder
 ======================================
 
-Using a folder
---------------
-
-.. code-block:: python
-   :linenos:
-
-   from repoze.folder import Folder
-   f = Folder()
-
 Folder interface
 ----------------
 
