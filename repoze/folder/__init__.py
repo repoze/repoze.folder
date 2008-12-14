@@ -16,16 +16,6 @@ from BTrees.OOBTree import OOBTree
 
 sysencoding = sys.getdefaultencoding()
 
-unidoc = """\
-        `name`` will optimally be a Unicode string, because keys used
-        to look up objects are stored as Unicode.  However, if
-        ``name`` is a byte string, the system attempts to decode it to
-        Unicode using the default system encoding; if it cannot be
-        decoded using the system encoding, the system attempts to
-        decode it using the UTF-8 codec; and if that fails, a
-        TypeError is raised.
-"""
-
 class Folder(Persistent):
     """
     A folder implementation which acts much like a Python dictionary.
@@ -84,8 +74,14 @@ class Folder(Persistent):
         argument if the object is not found.  Return the named object,
         or raise ``KeyError`` if the object is not found.
 
-        %s
-        """ % unidoc
+        `name`` will optimally be a Unicode string, because keys used
+        to look up objects are stored as Unicode.  However, if
+        ``name`` is a byte string, the system attempts to decode it to
+        Unicode using the default system encoding; if it cannot be
+        decoded using the system encoding, the system attempts to
+        decode it using the UTF-8 codec; and if that fails, a
+        TypeError is raised.
+        """
         name = unicodify(name)
         return self.data.get(name, default)
 
@@ -93,8 +89,14 @@ class Folder(Persistent):
         """
         Return true if the named object appears in the folder.
 
-        %s
-        """ % unidoc
+        `name`` will optimally be a Unicode string, because keys used
+        to look up objects are stored as Unicode.  However, if
+        ``name`` is a byte string, the system attempts to decode it to
+        Unicode using the default system encoding; if it cannot be
+        decoded using the system encoding, the system attempts to
+        decode it using the UTF-8 codec; and if that fails, a
+        TypeError is raised.
+        """
         name = unicodify(name)
         return self.data.has_key(name)
 
@@ -107,8 +109,14 @@ class Folder(Persistent):
         name must not be the empty string nor may it be of a type other
         than ``basestring`` (a TypeError is raised if either case is true).
 
-        %s
-        """ % unidoc
+        `name`` will optimally be a Unicode string, because keys used
+        to look up objects are stored as Unicode.  However, if
+        ``name`` is a byte string, the system attempts to decode it to
+        Unicode using the default system encoding; if it cannot be
+        decoded using the system encoding, the system attempts to
+        decode it using the UTF-8 codec; and if that fails, a
+        TypeError is raised.
+        """
         if not isinstance(name, basestring):
             raise TypeError("Name must be a string rather than a %s" %
                             name.__class__.__name__)
@@ -131,8 +139,14 @@ class Folder(Persistent):
         Delete the named object from the folder. Raises a KeyError if
         the object is not found.
 
-        %s
-        """ % unidoc
+        `name`` will optimally be a Unicode string, because keys used
+        to look up objects are stored as Unicode.  However, if
+        ``name`` is a byte string, the system attempts to decode it to
+        Unicode using the default system encoding; if it cannot be
+        decoded using the system encoding, the system attempts to
+        decode it using the UTF-8 codec; and if that fails, a
+        TypeError is raised.
+        """
         name = unicodify(name)
         other = self.data[name]
         objectEventNotify(ObjectWillBeRemovedEvent(other, self, name))
@@ -154,12 +168,18 @@ def unicodify(name, encoding=sysencoding):
     try:
         name = unicode(name, encoding)
     except UnicodeError:
+        if encoding == 'utf-8':
+            raise TypeError(
+                'Byte string names be decodeable using the system encoding '
+                'of "utf-8" (%s)' % name
+                )
         try:
             name = unicode(name, 'utf-8')
         except UnicodeError:
             raise TypeError(
                 'Byte string names be decodeable using either the system '
-                'encoding of %s or the utf-8 encoding (%s)' % (encoding, name)
+                'encoding of "%s" or the "utf-8" encoding (%s)' % (
+                encoding, name)
                 )
 
     return name
