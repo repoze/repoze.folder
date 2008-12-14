@@ -15,6 +15,8 @@ from BTrees.OOBTree import OOBTree
 class Folder(Persistent):
     """A Folder implementation.  The keys are Unicode strings, the
     values are arbitrary objects. """
+    __name__ = None
+    __parent__ = None
 
     implements(IFolder)
 
