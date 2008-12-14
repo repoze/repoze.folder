@@ -1,15 +1,30 @@
+0.3 (2008/12/13)
+
+ Backwards Incompatibilities
+
+  - When a new object is added using ``__setitem__`` with the same
+    name as an existing object, a KeyError is now raised rather than
+    the item being silently replaced.
+
+  - API methods accepting a ``name`` (``__setitem__``,
+    ``__getitem__``, ``get``, ``__contains__``, and ``__delitem__``)
+    now attempt to decode bytestrings to Unicode using the utf-8
+    encoding before performing the action the method implies.
+
+  - Previously, it was possible to store either an ASCII bytestring or
+    a Unicode object as a key value.  Now all key values are converted
+    to Unicode before being stored.
+
 0.2.1 (2008/10/31)
 
-- Remove __init__ from IFolder interface.
-
+ - Remove __init__ from IFolder interface.
+ 
 0.2 (2008/10/22)
-----------------
 
-- Update sphinx docs, using interfaces
+ - Update sphinx docs, using interfaces
 
-- Add folder __name__ to repr and str of folder in output.
+ - Add folder __name__ to repr and str of folder in output.
 
 0.1 (2008/10/13)
------------------
 
-- Initial release.
+ - Initial release.

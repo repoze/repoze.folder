@@ -76,34 +76,9 @@ class FolderTests(unittest.TestCase, PlacelessSetup):
         self.assertEqual(events[1].name, 'a')
 
     def test___setitem__exists(self):
-        from repoze.folder.interfaces import IObjectEvent
-        from repoze.folder.interfaces import IObjectRemovedEvent
-        from repoze.folder.interfaces import IObjectWillBeRemovedEvent
-        from repoze.folder.interfaces import IObjectAddedEvent
-        from repoze.folder.interfaces import IObjectWillBeAddedEvent
-        events = []
-        def listener(object, event):
-            events.append(event)
-        self._registerEventListener(listener, IObjectEvent)
-        dummy1 = DummyModel()
-        dummy1.__parent__ = None
-        dummy1.__name__ = None
-        dummy2 = DummyModel()
-        folder = self._makeOne({'a':dummy1})
-        folder.__setitem__('a', dummy2)
-        self.assertEqual(len(events), 4)
-        self.failUnless(IObjectWillBeRemovedEvent.providedBy(events[0]))
-        self.failUnless(IObjectRemovedEvent.providedBy(events[1]))
-        self.failUnless(IObjectWillBeAddedEvent.providedBy(events[2]))
-        self.failUnless(IObjectAddedEvent.providedBy(events[3]))
-        for event in events[0:2]:
-            self.assertEqual(event.object, dummy1)
-            self.assertEqual(event.parent, folder)
-            self.assertEqual(event.name, 'a')
-        for event in events[2:4]:
-            self.assertEqual(event.object, dummy2)
-            self.assertEqual(event.parent, folder)
-            self.assertEqual(event.name, 'a')
+        dummy = DummyModel()
+        folder = self._makeOne({'a':dummy})
+        self.assertRaises(KeyError, folder.__setitem__, 'a', dummy)
 
     def test___delitem__(self):
         from repoze.folder.interfaces import IObjectEvent
@@ -145,7 +120,29 @@ class FolderTests(unittest.TestCase, PlacelessSetup):
         self.failUnless(
             "<repoze.folder.Folder object 'thefolder' at " in r)
         self.failUnless(r.endswith('>'))
-        
+
+    def test_unresolveable_unicode_setitem(self):
+        name = unicode('La Pe\xc3\xb1a', 'utf-8').encode('latin-1')
+        folder = self._makeOne()
+        self.assertRaises(TypeError, folder.__setitem__, name, DummyModel())
+
+    def test_resolveable_unicode_setitem(self):
+        name = 'La Pe\xc3\xb1a'
+        folder = self._makeOne()
+        folder[name] = DummyModel()
+        self.failUnless(folder.get(name))
+
+    def test_unresolveable_unicode_getitem(self):
+        name = unicode('La Pe\xc3\xb1a', 'utf-8').encode('latin-1')
+        folder = self._makeOne()
+        self.assertRaises(TypeError, folder.__getitem__, name)
+
+    def test_resolveable_unicode_getitem(self):
+        name = 'La Pe\xc3\xb1a'
+        folder = self._makeOne()
+        folder[name] = DummyModel()
+        self.failUnless(folder[name])
+
 class DummyModel:
     pass
 

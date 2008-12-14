@@ -31,54 +31,62 @@ class IObjectRemovedEvent(IObjectEvent):
                      'with')
 
 class IFolder(Interface):
-    """ Folder """
+    """ A Folder implementation which stores objects using Unicode
+    keys.  All methods which accept a ``name`` argument expect the
+    name to either be Unicode or byte strings decodable using the
+    UTF-8 encoding."""
     def keys():
         """ Return a ``BTreeItems`` sequence representing the keys
         (object names) present in the folder.  Use list() against this
         value to expand eagerly."""
     def __iter__():
-        """ Return an iterator which iterates over the keys in the folder """
+        """ An alias for ``keys`` """
     def values():
         """ Return a ``BTreeItems`` sequence representing the values
-        (object values) present in the folder. Use list() against this
-        value to expand eagerly."""
+        (object values) present in the folder."""
     def items():
         """ Return a ``BTreeItems`` sequence representing the values
-        (object values) present in the folder. Use list() against this
-        value to expand eagerly."""
+        (object values) present in the folder."""
     def get(name, default=None):
         """ Return the object value named by ``name`` or the default
-        if the object name does not exist"""
+        if the object name does not exist.  ``name`` must be a Unicode
+        object or a bytestring object; if ``name`` is a bytestring
+        object, it must be decodable using the UTF-8 encoding. """
     def __contains__(name):
         """ Return ``True`` if the container contains the object value
-        named by name, ``False`` otherwise """
+        named by name, ``False`` otherwise. ``name`` must be a Unicode
+        object or a bytestring object; if ``name`` is a bytestring
+        object, it must be decodable using the UTF-8 encoding."""
     def __nonzero__():
         """ Always return True """
     def __setitem__(name, other):
         """ Set an object into this folder using the name ``name`` and
-        the value ``other``.  ``name`` must be a Unicode or ASCII
-        object; if ``name`` is an ASCII object, it must be a 7-bit
-        value only.  ``name`` cannot be the empty string.  When
-        ``other`` is seated into this folder, it will also be
-        decorated with a ``__parent__`` attribute (a reference to the
-        folder into which it is being seated) and ``__name__``
-        attribute (the name passed in to this function.  If a value
-        already exists with the name ``name`` within this folder, it
-        will be removed from the container before the new value is
-        added.  When this method is called, an
-        ``ObjectWillBeAddedEvent`` event will be emitted before the
+        the value ``other``.  ``name`` must be a Unicode object or a
+        bytestring object; if ``name`` is a bytestring object, it must
+        be decodable using the UTF-8 encoding.  ``name`` cannot be the
+        empty string.  When ``other`` is seated into this folder, it
+        will also be decorated with a ``__parent__`` attribute (a
+        reference to the folder into which it is being seated) and
+        ``__name__`` attribute (the name passed in to this function.
+        If a value already exists with the name ``name`` within this
+        folder, a KeyError will be raised. When this method is called,
+        an ``ObjectWillBeAddedEvent`` event will be emitted before the
         object obtains a ``__name__`` or ``__parent__`` value.  After
         the object obtains a ``__name__`` and ``__parent__`` value, an
         ``ObjectAddedEvent`` will be emitted."""
     def __delitem__(name):
-        """ Delete an object value from this folder that is already
-        present in the folder with the name ``name``.  If the object
-        value with the name ``name`` does not exist in the folder a
-        ``KeyError`` will be raised.  When the object value referred
-        to by ``name`` is deleted from this folder, its ``__parent__``
-        and ``__name__`` values will be removed from the object.  When
-        this method is called, an ``ObjectWillBeRemovedEvent`` event
-        will be emitted before the object loses its ``__name__`` or
-        ``__parent__`` values.  After the object loses its
-        ``__name__`` and ``__parent__`` value, an
-        ``ObjectRemovedEvent`` will be emitted."""
+        """
+        Delete an object value from this folder that is already
+        present in the folder with the name ``name``.  ``name`` must
+        be a Unicode object or a bytestring object; if ``name`` is a
+        bytestring object, it must be decodable using the UTF-8
+        encoding.  If the object value with the name ``name`` does not
+        exist in the folder a ``KeyError`` will be raised.  When the
+        object value referred to by ``name`` is deleted from this
+        folder, its ``__parent__`` and ``__name__`` values will be
+        removed from the object.  When this method is called, an
+        ``ObjectWillBeRemovedEvent`` event will be emitted before the
+        object loses its ``__name__`` or ``__parent__`` values.  After
+        the object loses its ``__name__`` and ``__parent__`` value, an
+        ``ObjectRemovedEvent`` will be emitted.
+        """
