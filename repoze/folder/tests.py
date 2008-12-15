@@ -144,25 +144,25 @@ class FolderTests(unittest.TestCase, PlacelessSetup):
         self.failUnless(folder[name])
 
 class UnicodifyTests(unittest.TestCase):
-    def _callFUT(self, name, encoding):
+    def _callFUT(self, name):
         from repoze.folder import unicodify
-        return unicodify(name, encoding)
+        return unicodify(name)
 
-    def test_ascii_default_encoding_good(self):
-        name = self._callFUT('abc', 'ascii')
-        self.assertEqual(name, u'abc')
+    def test_default_encoding_works(self):
+        result = self._callFUT('abc')
+        self.assertEqual(result, u'abc')
 
-    def test_ascii_default_encoding_bad(self):
-        name = unicode('La Pe\xc3\xb1a', 'utf-8').encode('utf-16')
-        self.assertRaises(TypeError, self._callFUT, name, 'ascii')
+    def test_utf8_encoding_works(self):
+        result = self._callFUT('La Pe\xc3\xb1a')
+        self.assertEqual(result, unicode('La Pe\xc3\xb1a', 'utf-8'))
+
+    def test_unicode_works(self):
+        result = self._callFUT(unicode('La Pe\xc3\xb1a', 'utf-8'))
+        self.assertEqual(result, unicode('La Pe\xc3\xb1a', 'utf-8'))
         
-    def test_utf_8_default_encoding_good(self):
-        name = self._callFUT('abc', 'utf-8')
-        self.assertEqual(name, u'abc')
-
-    def test_utf_8_default_encoding_bad(self):
+    def test_unknown_encoding_breaks(self):
         name = unicode('La Pe\xc3\xb1a', 'utf-8').encode('utf-16')
-        self.assertRaises(TypeError, self._callFUT, name, 'utf-8')
+        self.assertRaises(TypeError, self._callFUT, name)
 
 class DummyModel:
     pass

@@ -164,11 +164,11 @@ class Folder(Persistent):
                                           self.__name__,
                                           id(self))
     
-def unicodify(name, encoding=sysencoding):
+def unicodify(name):
     try:
-        name = unicode(name, encoding)
+        name = unicode(name)
     except UnicodeError:
-        if encoding == 'utf-8':
+        if sysencoding in ('utf-8', 'utf8'):
             raise TypeError(
                 'Byte string names be decodeable using the system encoding '
                 'of "utf-8" (%s)' % name
@@ -179,7 +179,7 @@ def unicodify(name, encoding=sysencoding):
             raise TypeError(
                 'Byte string names be decodeable using either the system '
                 'encoding of "%s" or the "utf-8" encoding (%s)' % (
-                encoding, name)
+                sysencoding, name)
                 )
 
     return name
