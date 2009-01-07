@@ -1,5 +1,5 @@
-Next release
-============
+0.3.3 (2009/1/6)
+================
 
 Add tests for ``unicodify`` and make docs about to-Unicode
 convenience conversion from byte strings (and error messages)
