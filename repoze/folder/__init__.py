@@ -13,6 +13,7 @@ from repoze.folder.events import ObjectRemovedEvent
 from repoze.folder.events import ObjectWillBeRemovedEvent
 
 from BTrees.OOBTree import OOBTree
+from BTrees.Length import Length
 
 sysencoding = sys.getdefaultencoding()
 
@@ -23,6 +24,11 @@ class Folder(Persistent):
     objects.
     """
 
+    # _num_objects=None below is b/w compat for older instances of
+    # folders which don't have a BTrees.Length object as a
+    # _num_objects attribute.
+    _num_objects = None 
+
     __name__ = None
     __parent__ = None
 
@@ -30,9 +36,9 @@ class Folder(Persistent):
 
     def __init__(self, data=None):
         if data is None:
-            self.data = OOBTree()
-        else:
-            self.data = data
+            data = {}
+        self.data = OOBTree(data)
+        self._num_objects = Length(len(data))
 
     def keys(self):
         """
@@ -43,6 +49,20 @@ class Folder(Persistent):
         return self.data.keys()
 
     __iter__ = keys
+
+    def __len__(self):
+        """
+        Returns the number of objects in the container.
+        """
+        if self._num_objects is None:
+            # can be arbitrarily expensive
+            return len(self.data)
+        return self._num_objects()
+
+    def __nonzero__(self):
+        """ This is defined so code that does 'if folder:' will avoid
+        calling __len__ (which can be arbitrarily expensive). """
+        return True
 
     def values(self):
         """
@@ -100,9 +120,6 @@ class Folder(Persistent):
         name = unicodify(name)
         return self.data.has_key(name)
 
-    def __nonzero__(self):
-        return True
-
     def __setitem__(self, name, other):
         """
         Add the given object to the folder under the given name.  The
@@ -132,6 +149,7 @@ class Folder(Persistent):
         other.__parent__ = self
         other.__name__ = name
         self.data[name] = other
+        self._num_objects.change(1)
         objectEventNotify(ObjectAddedEvent(other, self, name))
 
     def __delitem__(self, name):
@@ -155,6 +173,7 @@ class Folder(Persistent):
         if hasattr(other, '__name__'):
             del other.__name__
         del self.data[name]
+        self._num_objects.change(-1)
         objectEventNotify(ObjectRemovedEvent(other, self, name))
 
     def __repr__(self):

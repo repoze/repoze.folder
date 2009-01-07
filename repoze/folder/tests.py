@@ -30,6 +30,12 @@ class FolderTests(unittest.TestCase, PlacelessSetup):
         folder = self._makeOne({'a':1, 'b':2})
         self.assertEqual(sorted(list(folder.__iter__())), ['a', 'b'])
 
+    def test__len__(self):
+        folder = self._makeOne({'a':1, 'b':2})
+        self.assertEqual(len(folder), 2)
+        del folder['a']
+        self.assertEqual(len(folder), 1)
+
     def test_values(self):
         folder = self._makeOne({'a':1, 'b':2})
         self.assertEqual(sorted(list(folder.values())), [1, 2])
@@ -64,7 +70,9 @@ class FolderTests(unittest.TestCase, PlacelessSetup):
         self._registerEventListener(listener, IObjectEvent)
         dummy = DummyModel()
         folder = self._makeOne()
+        self.assertEqual(folder._num_objects(), 0)
         folder['a'] = dummy
+        self.assertEqual(folder._num_objects(), 1)
         self.assertEqual(len(events), 2)
         self.failUnless(IObjectWillBeAddedEvent.providedBy(events[0]))
         self.assertEqual(events[0].object, dummy)
@@ -78,7 +86,9 @@ class FolderTests(unittest.TestCase, PlacelessSetup):
     def test___setitem__exists(self):
         dummy = DummyModel()
         folder = self._makeOne({'a':dummy})
+        self.assertEqual(folder._num_objects(), 1)
         self.assertRaises(KeyError, folder.__setitem__, 'a', dummy)
+        self.assertEqual(folder._num_objects(), 1)
 
     def test___delitem__(self):
         from repoze.folder.interfaces import IObjectEvent
@@ -92,7 +102,9 @@ class FolderTests(unittest.TestCase, PlacelessSetup):
         dummy.__parent__ = None
         dummy.__name__ = None
         folder = self._makeOne({'a':dummy})
+        self.assertEqual(folder._num_objects(), 1)
         del folder['a']
+        self.assertEqual(folder._num_objects(), 0)
         self.assertEqual(len(events), 2)
         self.failUnless(IObjectWillBeRemovedEvent.providedBy(events[0]))
         self.failUnless(IObjectRemovedEvent.providedBy(events[1]))

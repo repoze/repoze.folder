@@ -4,6 +4,23 @@ Next release
  convenience conversion from byte strings (and error messages)
  slightly clearer.
 
+ Now no matter what is passed to the repoze.folder as constructor, we
+ try to turn it into an OOBTree (before it was set as ``data`` on the
+ instance without any conversion).
+
+ A ``__len__`` method was added to ``repoze.folder.Folder`` instances.
+ It returns the number of subobjects in the folder.
+
+ A ``_num_objects`` attribute is set onto newly created
+ ``repoze.folder.Folder`` instances.  This is a
+ ``BTrees.Length.Length`` object.  We manage this length object in
+ order to supply a return value for the ``__len__`` method instead of
+ using the folder's underlying OOBTree.__len__ method (querying a
+ btree for length can be arbitrarily expensive).  A ``_num_objects``
+ class attribute was added equalling None to provide a backward
+ compatibility cue for already-persisted objects which do not have a
+ meaningful Length attribute.
+
 0.3.2 (2008/12/13)
 
  Yeah.  0.3.1 was another brownbag, as we need to try to decode ASCII

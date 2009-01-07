@@ -61,6 +61,8 @@ class IFolder(Interface):
         or the UTF-8 encoding."""
     def __nonzero__():
         """ Always return True """
+    def __len__():
+        """ Return the number of subobjects in this folder. """
     def __setitem__(name, other):
         """ Set an object into this folder using the name ``name`` and
         the value ``other``.  ``name`` must be a Unicode object or a
