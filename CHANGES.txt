@@ -22,6 +22,9 @@ attribute was added equalling None to provide a backward compatibility
 cue for already-persisted objects which do not have a meaningful
 Length attribute.
 
+The implementation no longer concerns itself with advertising a
+modified event (``IObjectModifiedEvent``).
+
 0.3.2 (2008/12/13)
 ==================
 

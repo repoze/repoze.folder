@@ -44,10 +44,5 @@ The event interface types are as follows::
   IObjectWillBeRemovedEvent (before the object is removed from the folder)
   IObjectRemovedEvent (after the object is removed from the folder)
 
-An additional event interface is defined for convenience but no events
-of this type are emitted by the folder implementation itself::
-
-  IObjectModifiedEvent (meant to be sent when any object is modified)
-
 See the ``repoze.folder.interfaces`` file for more information about
 the folder API and the event object APIs.
