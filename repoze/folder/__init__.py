@@ -149,7 +149,8 @@ class Folder(Persistent):
         other.__parent__ = self
         other.__name__ = name
         self.data[name] = other
-        self._num_objects.change(1)
+        if self._num_objects is not None:
+            self._num_objects.change(1)
         objectEventNotify(ObjectAddedEvent(other, self, name))
 
     def __delitem__(self, name):
@@ -173,7 +174,8 @@ class Folder(Persistent):
         if hasattr(other, '__name__'):
             del other.__name__
         del self.data[name]
-        self._num_objects.change(-1)
+        if self._num_objects is not None:
+            self._num_objects.change(-1)
         objectEventNotify(ObjectRemovedEvent(other, self, name))
 
     def __repr__(self):
