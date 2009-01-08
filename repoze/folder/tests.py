@@ -155,6 +155,24 @@ class FolderTests(unittest.TestCase, PlacelessSetup):
         folder[name] = DummyModel()
         self.failUnless(folder[name])
 
+    def test_bwcompat_nolength_delitem(self):
+        folder = self._makeOne()
+        folder['a'] = DummyModel()
+        folder['b'] = DummyModel()
+        self.assertEqual(folder._num_objects(), 2)
+        folder._num_objects = None
+        del folder['a']
+        self.assertEqual(folder._num_objects(), 1)
+
+    def test_bwcompat_nolength_setitem(self):
+        folder = self._makeOne()
+        folder['a'] = DummyModel()
+        folder['b'] = DummyModel()
+        self.assertEqual(folder._num_objects(), 2)
+        folder._num_objects = None
+        folder['c'] = DummyModel()
+        self.assertEqual(folder._num_objects(), 3)
+
 class UnicodifyTests(unittest.TestCase):
     def _callFUT(self, name):
         from repoze.folder import unicodify

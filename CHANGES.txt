@@ -1,3 +1,10 @@
+0.3.5 (2009/1/8)
+================
+
+Add a ``BTrees.Length`` object to folders that don't already have one
+during ``__setitem__`` and ``__delitem__`` (this is an "evolution"
+step; having a Length object is useful for performance reasons).
+
 0.3.4 (2009/1/8)
 ================
 

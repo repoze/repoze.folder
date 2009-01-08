@@ -148,9 +148,14 @@ class Folder(Persistent):
         objectEventNotify(ObjectWillBeAddedEvent(other, self, name))
         other.__parent__ = self
         other.__name__ = name
+
+        # backwards compatibility: add a Length _num_objects to folders that
+        # have none
+        if self._num_objects is None:
+            self._num_objects = Length(len(self.data))
+
         self.data[name] = other
-        if self._num_objects is not None:
-            self._num_objects.change(1)
+        self._num_objects.change(1)
         objectEventNotify(ObjectAddedEvent(other, self, name))
 
     def __delitem__(self, name):
@@ -173,9 +178,14 @@ class Folder(Persistent):
             del other.__parent__
         if hasattr(other, '__name__'):
             del other.__name__
+
+        # backwards compatibility: add a Length _num_objects to folders that
+        # have none
+        if self._num_objects is None:
+            self._num_objects = Length(len(self.data))
+
         del self.data[name]
-        if self._num_objects is not None:
-            self._num_objects.change(-1)
+        self._num_objects.change(-1)
         objectEventNotify(ObjectRemovedEvent(other, self, name))
 
     def __repr__(self):
