@@ -1,3 +1,9 @@
+0.3.4 (2009/1/8)
+================
+
+Fix backwards compatibility foul (near ``self._num_objects.change(1)``:
+``AttributeError: 'NoneType' object has no attribute 'change'``).
+
 0.3.3 (2009/1/6)
 ================
 
