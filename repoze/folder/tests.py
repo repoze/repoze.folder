@@ -22,7 +22,7 @@ class FolderTests(unittest.TestCase, PlacelessSetup):
         from repoze.folder.interfaces import IFolder
         verifyClass(IFolder, klass)
         
-    def test_inst_provides_ICatalog(self):
+    def test_inst_provides_IFolder(self):
         klass = self._getTargetClass()
         from zope.interface.verify import verifyObject
         from repoze.folder.interfaces import IFolder
