@@ -93,7 +93,7 @@ class IFolder(Interface):
         Delete an object value from this folder that is already
         present in the folder with the name ``name``.  ``name`` must
         be a Unicode object or a bytestring object; if ``name`` is a
-xs        bytestring object, it must be decodable using the system
+        bytestring object, it must be decodable using the system
         default encoding or the UTF-8 encoding.  If the object value
         with the name ``name`` does not exist in the folder a
         ``KeyError`` will be raised.  When the object value referred
