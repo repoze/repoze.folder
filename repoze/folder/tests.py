@@ -16,6 +16,19 @@ class FolderTests(unittest.TestCase, PlacelessSetup):
         klass = self._getTargetClass()
         return klass(data)
 
+    def test_klass_provides_IFolder(self):
+        klass = self._getTargetClass()
+        from zope.interface.verify import verifyClass
+        from repoze.folder.interfaces import IFolder
+        verifyClass(IFolder, klass)
+        
+    def test_inst_provides_ICatalog(self):
+        klass = self._getTargetClass()
+        from zope.interface.verify import verifyObject
+        from repoze.folder.interfaces import IFolder
+        inst = self._makeOne()
+        verifyObject(IFolder, inst)
+
     def _registerEventListener(self, listener, iface):
         import zope.component
         gsm = zope.component.getGlobalSiteManager()
@@ -82,6 +95,45 @@ class FolderTests(unittest.TestCase, PlacelessSetup):
         self.assertEqual(events[1].object, dummy)
         self.assertEqual(events[1].parent, folder)
         self.assertEqual(events[1].name, 'a')
+        self.assertEqual(folder['a'], dummy)
+
+    def test_add_send_events(self):
+        from repoze.folder.interfaces import IObjectEvent
+        from repoze.folder.interfaces import IObjectWillBeAddedEvent
+        from repoze.folder.interfaces import IObjectAddedEvent
+        events = []
+        def listener(object, event):
+            events.append(event)
+        self._registerEventListener(listener, IObjectEvent)
+        dummy = DummyModel()
+        folder = self._makeOne()
+        self.assertEqual(folder._num_objects(), 0)
+        folder.add('a', dummy, send_events=True)
+        self.assertEqual(folder._num_objects(), 1)
+        self.assertEqual(len(events), 2)
+        self.failUnless(IObjectWillBeAddedEvent.providedBy(events[0]))
+        self.assertEqual(events[0].object, dummy)
+        self.assertEqual(events[0].parent, folder)
+        self.assertEqual(events[0].name, 'a')
+        self.failUnless(IObjectAddedEvent.providedBy(events[1]))
+        self.assertEqual(events[1].object, dummy)
+        self.assertEqual(events[1].parent, folder)
+        self.assertEqual(events[1].name, 'a')
+        self.assertEqual(folder['a'], dummy)
+
+    def test_add_suppress_events(self):
+        from repoze.folder.interfaces import IObjectEvent
+        events = []
+        def listener(object, event):
+            events.append(event)
+        self._registerEventListener(listener, IObjectEvent)
+        dummy = DummyModel()
+        folder = self._makeOne()
+        self.assertEqual(folder._num_objects(), 0)
+        folder.add('a', dummy, send_events=False)
+        self.assertEqual(folder._num_objects(), 1)
+        self.assertEqual(len(events), 0)
+        self.assertEqual(folder['a'], dummy)
 
     def test___setitem__exists(self):
         dummy = DummyModel()
@@ -114,6 +166,50 @@ class FolderTests(unittest.TestCase, PlacelessSetup):
         self.assertEqual(events[1].object, dummy)
         self.assertEqual(events[1].parent, folder)
         self.assertEqual(events[1].name, 'a')
+        self.failIf(hasattr(dummy, '__parent__'))
+        self.failIf(hasattr(dummy, '__name__'))
+
+    def test_remove_send_events(self):
+        from repoze.folder.interfaces import IObjectEvent
+        from repoze.folder.interfaces import IObjectRemovedEvent
+        from repoze.folder.interfaces import IObjectWillBeRemovedEvent
+        events = []
+        def listener(object, event):
+            events.append(event)
+        self._registerEventListener(listener, IObjectEvent)
+        dummy = DummyModel()
+        dummy.__parent__ = None
+        dummy.__name__ = None
+        folder = self._makeOne({'a':dummy})
+        self.assertEqual(folder._num_objects(), 1)
+        folder.remove('a', send_events=True)
+        self.assertEqual(folder._num_objects(), 0)
+        self.assertEqual(len(events), 2)
+        self.failUnless(IObjectWillBeRemovedEvent.providedBy(events[0]))
+        self.failUnless(IObjectRemovedEvent.providedBy(events[1]))
+        self.assertEqual(events[0].object, dummy)
+        self.assertEqual(events[0].parent, folder)
+        self.assertEqual(events[0].name, 'a')
+        self.assertEqual(events[1].object, dummy)
+        self.assertEqual(events[1].parent, folder)
+        self.assertEqual(events[1].name, 'a')
+        self.failIf(hasattr(dummy, '__parent__'))
+        self.failIf(hasattr(dummy, '__name__'))
+
+    def test_remove_suppress_events(self):
+        from repoze.folder.interfaces import IObjectEvent
+        events = []
+        def listener(object, event):
+            events.append(event)
+        self._registerEventListener(listener, IObjectEvent)
+        dummy = DummyModel()
+        dummy.__parent__ = None
+        dummy.__name__ = None
+        folder = self._makeOne({'a':dummy})
+        self.assertEqual(folder._num_objects(), 1)
+        folder.remove('a', send_events=False)
+        self.assertEqual(folder._num_objects(), 0)
+        self.assertEqual(len(events), 0)
         self.failIf(hasattr(dummy, '__parent__'))
         self.failIf(hasattr(dummy, '__name__'))
 

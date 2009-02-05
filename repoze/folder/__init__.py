@@ -133,6 +133,21 @@ class Folder(Persistent):
         decoded using the system encoding, the system attempts to
         decode it using the UTF-8 codec; and if that fails, a
         TypeError is raised.
+
+        This method sends a ``ObjectWillBeAddedEvent`` before the
+        object is set into the folder, and an ``ObjectAddedEvent``
+        after the object has been set into the folder.
+        """
+        return self.add(name, other)
+
+    def add(self, name, other, send_events=True):
+        """ Does the same thing as ``__delitem__`` but provides the
+        ``send_events`` argument to allow a user to suppress the
+        sending of folder events.  By default, the ``send_events``
+        flag is ``True``, meaning this method behaves exactly like
+        ``__setitem__`` (events are sent).  If ``send_events`` is
+        ``False`` or any other value that evaluates to false, folder
+        events will not be sent.
         """
         if not isinstance(name, basestring):
             raise TypeError("Name must be a string rather than a %s" %
@@ -145,7 +160,8 @@ class Folder(Persistent):
         if self.data.has_key(name):
             raise KeyError('An object named %s already exists' % name)
 
-        objectEventNotify(ObjectWillBeAddedEvent(other, self, name))
+        if send_events:
+            objectEventNotify(ObjectWillBeAddedEvent(other, self, name))
         other.__parent__ = self
         other.__name__ = name
 
@@ -156,7 +172,8 @@ class Folder(Persistent):
 
         self.data[name] = other
         self._num_objects.change(1)
-        objectEventNotify(ObjectAddedEvent(other, self, name))
+        if send_events:
+            objectEventNotify(ObjectAddedEvent(other, self, name))
 
     def __delitem__(self, name):
         """
@@ -170,10 +187,28 @@ class Folder(Persistent):
         decoded using the system encoding, the system attempts to
         decode it using the UTF-8 codec; and if that fails, a
         TypeError is raised.
+
+        This method sends a ``ObjectWillBeRemovedEvent`` before the
+        object is set into the folder, and an ``ObjectRemovedEvent``
+        after the object has been set into the folder.
+        """
+        return self.remove(name)
+
+    def remove(self, name, send_events=True):
+        """ Does the same thing as ``__delitem__`` but provides the
+        ``send_events`` argument to allow a user to suppress the
+        sending of folder events.  By default, the ``send_events``
+        flag is ``True``, meaning this method behaves exactly like
+        ``__delitem__`` (events are sent).  If ``send_events`` is
+        ``False`` or any other value that evaluates to false, folder
+        events will not be sent.
         """
         name = unicodify(name)
         other = self.data[name]
-        objectEventNotify(ObjectWillBeRemovedEvent(other, self, name))
+
+        if send_events:
+            objectEventNotify(ObjectWillBeRemovedEvent(other, self, name))
+
         if hasattr(other, '__parent__'):
             del other.__parent__
         if hasattr(other, '__name__'):
@@ -186,7 +221,8 @@ class Folder(Persistent):
 
         del self.data[name]
         self._num_objects.change(-1)
-        objectEventNotify(ObjectRemovedEvent(other, self, name))
+        if send_events:
+            objectEventNotify(ObjectRemovedEvent(other, self, name))
 
     def __repr__(self):
         klass = self.__class__

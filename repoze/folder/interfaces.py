@@ -79,12 +79,21 @@ class IFolder(Interface):
         object obtains a ``__name__`` or ``__parent__`` value.  After
         the object obtains a ``__name__`` and ``__parent__`` value, an
         ``ObjectAddedEvent`` will be emitted."""
+    def add(name, other, send_events=True):
+        """ Does the same thing as ``__delitem__`` but provides the
+        ``send_events`` argument to allow a user to suppress the
+        sending of folder events.  By default, the ``send_events``
+        flag is ``True``, meaning this method behaves exactly like
+        ``__setitem__`` (events are sent).  If ``send_events`` is
+        ``False`` or any other value that evaluates to false, folder
+        events will not be sent.
+        """
     def __delitem__(name):
         """
         Delete an object value from this folder that is already
         present in the folder with the name ``name``.  ``name`` must
         be a Unicode object or a bytestring object; if ``name`` is a
-        bytestring object, it must be decodable using the system
+xs        bytestring object, it must be decodable using the system
         default encoding or the UTF-8 encoding.  If the object value
         with the name ``name`` does not exist in the folder a
         ``KeyError`` will be raised.  When the object value referred
@@ -95,4 +104,13 @@ class IFolder(Interface):
         ``__parent__`` values.  After the object loses its
         ``__name__`` and ``__parent__`` value, an
         ``ObjectRemovedEvent`` will be emitted.
+        """
+    def remove(name, send_events=True):
+        """ Does the same thing as ``__delitem__`` but provides the
+        ``send_events`` argument to allow a user to suppress the
+        sending of folder events.  By default, the ``send_events``
+        flag is ``True``, meaning this method behaves exactly like
+        ``__delitem__`` (events are sent).  If ``send_events`` is
+        ``False`` or any other value that evaluates to false, folder
+        events will not be sent.
         """
