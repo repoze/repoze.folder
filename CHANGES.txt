@@ -1,24 +1,27 @@
 Next release
 ============
 
-Add an ``add`` method that does what ``__setitem__`` does.  It also
-provides a flag named ``send_events``, which by default is True.  If
-it is False when ``add` is called, folder events
-(``IObjectWillBeAddedEvent`` and ``IObjectAddedEvent``) will not be
-sent.
+- 100% test coverage.
 
-Add a ``remove`` method that does what ``__delitem__`` does.  It also
-provides a flag named ``send_events``, which by default is True.  If
-it is False when ``add` is called, folder events
-(``IObjectWillBeRemovedEvent`` and ``IObjectRemovedEvent``) will not be
-sent.
+- Add an ``add`` method that does what ``__setitem__`` does.  It also
+  provides a flag named ``send_events``, which by default is True.  If
+  it is False when ``add` is called, folder events
+  (``IObjectWillBeAddedEvent`` and ``IObjectAddedEvent``) will not be
+  sent.
+
+- Add a ``remove`` method that does what ``__delitem__`` does.  It
+  also provides a flag named ``send_events``, which by default is
+  True.  If it is False when ``add` is called, folder events
+  (``IObjectWillBeRemovedEvent`` and ``IObjectRemovedEvent``) will not
+  be sent.
 
 0.3.5 (2009/1/8)
 ================
 
-Add a ``BTrees.Length`` object to folders that don't already have one
-during ``__setitem__`` and ``__delitem__`` (this is an "evolution"
-step; having a Length object is useful for performance reasons).
+- Add a ``BTrees.Length`` object to folders that don't already have
+  one during ``__setitem__`` and ``__delitem__`` (this is an
+  "evolution" step; having a Length object is useful for performance
+  reasons).
 
 0.3.4 (2009/1/8)
 ================
@@ -29,41 +32,41 @@ Fix backwards compatibility foul (near ``self._num_objects.change(1)``:
 0.3.3 (2009/1/6)
 ================
 
-Add tests for ``unicodify`` and make docs about to-Unicode
-convenience conversion from byte strings (and error messages)
-slightly clearer.
+- Add tests for ``unicodify`` and make docs about to-Unicode
+  convenience conversion from byte strings (and error messages)
+  slightly clearer.
 
-Now no matter what is passed to the repoze.folder as constructor, we
-try to turn it into an OOBTree (before it was set as ``data`` on the
-instance without any conversion).
+- Now no matter what is passed to the repoze.folder as constructor, we
+  try to turn it into an OOBTree (before it was set as ``data`` on the
+  instance without any conversion).
 
-A ``__len__`` method was added to ``repoze.folder.Folder`` instances.
-It returns the number of subobjects in the folder.
+- A ``__len__`` method was added to ``repoze.folder.Folder``
+  instances.  It returns the number of subobjects in the folder.
 
-A ``_num_objects`` attribute is set onto newly created
-``repoze.folder.Folder`` instances.  This is a
-``BTrees.Length.Length`` object.  We manage this length object in
-order to supply a return value for the ``__len__`` method instead of
-using the folder's underlying OOBTree.__len__ method (querying a btree
-for length can be arbitrarily expensive).  A ``_num_objects`` class
-attribute was added equalling None to provide a backward compatibility
-cue for already-persisted objects which do not have a meaningful
-Length attribute.
+- A ``_num_objects`` attribute is set onto newly created
+  ``repoze.folder.Folder`` instances.  This is a
+  ``BTrees.Length.Length`` object.  We manage this length object in
+  order to supply a return value for the ``__len__`` method instead of
+  using the folder's underlying OOBTree.__len__ method (querying a
+  btree for length can be arbitrarily expensive).  A ``_num_objects``
+  class attribute was added equalling None to provide a backward
+  compatibility cue for already-persisted objects which do not have a
+  meaningful Length attribute.
 
-The implementation no longer concerns itself with advertising a
-modified event (``IObjectModifiedEvent``).
+- The implementation no longer concerns itself with advertising a
+  modified event (``IObjectModifiedEvent``).
 
 0.3.2 (2008/12/13)
 ==================
 
-Yeah.  0.3.1 was another brownbag, as we need to try to decode ASCII
-to unicode before we use the utf-8 decoding.
+- Yeah.  0.3.1 was another brownbag, as we need to try to decode ASCII
+  to unicode before we use the utf-8 decoding.
 
 0.3.1 (2008/12/13)
 ===================
 
-Mistakenly removed ``__parent__`` and ``__name__`` attributes from
-folder implementation, making 0.3 a brownbag.
+- Mistakenly removed ``__parent__`` and ``__name__`` attributes from
+  folder implementation, making 0.3 a brownbag.
 
 0.3 (2008/12/13)
 ================
@@ -71,32 +74,32 @@ folder implementation, making 0.3 a brownbag.
 Backwards Incompatibilities
 ---------------------------
 
-When a new object is added using ``__setitem__`` with the same name as
-an existing object, a KeyError is now raised rather than the item
-being silently replaced.
+- When a new object is added using ``__setitem__`` with the same name
+  as an existing object, a KeyError is now raised rather than the item
+  being silently replaced.
 
-API methods accepting a ``name`` (``__setitem__``, ``__getitem__``,
-``get``, ``__contains__``, and ``__delitem__``) now attempt to decode
-bytestrings to Unicode using the utf-8 encoding before performing the
-action the method implies.
+- API methods accepting a ``name`` (``__setitem__``, ``__getitem__``,
+  ``get``, ``__contains__``, and ``__delitem__``) now attempt to
+  decode bytestrings to Unicode using the utf-8 encoding before
+  performing the action the method implies.
 
-Previously, it was possible to store either an ASCII bytestring or a
-Unicode object as a key value.  Now all key values are converted to
-Unicode before being stored.
+- Previously, it was possible to store either an ASCII bytestring or a
+  Unicode object as a key value.  Now all key values are converted to
+  Unicode before being stored.
 
 0.2.1 (2008/10/31)
 ==================
 
-Remove ``__init__`` from IFolder interface.
+- Remove ``__init__`` from IFolder interface.
  
 0.2 (2008/10/22)
 ================
 
-Update sphinx docs, using interfaces
+- Update sphinx docs, using interfaces
 
-Add folder __name__ to repr and str of folder in output.
+- Add folder __name__ to repr and str of folder in output.
 
 0.1 (2008/10/13)
 ================
 
-Initial release.
+- Initial release.

@@ -49,6 +49,18 @@ class FolderTests(unittest.TestCase, PlacelessSetup):
         del folder['a']
         self.assertEqual(len(folder), 1)
 
+    def test__len___num_objects_None(self):
+        folder = self._makeOne({'a':1, 'b':2})
+        folder._num_objects = None
+        self.assertEqual(len(folder), 2)
+        del folder['a']
+        self.assertEqual(len(folder), 1)
+
+    def test__contains__(self):
+        folder = self._makeOne({'a':1, 'b':2})
+        self.failUnless('a' in folder)
+        self.failIf('c' in folder)
+
     def test_values(self):
         folder = self._makeOne({'a':1, 'b':2})
         self.assertEqual(sorted(list(folder.values())), [1, 2])
@@ -134,6 +146,14 @@ class FolderTests(unittest.TestCase, PlacelessSetup):
         self.assertEqual(folder._num_objects(), 1)
         self.assertEqual(len(events), 0)
         self.assertEqual(folder['a'], dummy)
+
+    def test_add_name_wrongtype(self):
+        folder = self._makeOne()
+        self.assertRaises(TypeError, folder.add, 1, 'foo')
+
+    def test_add_name_empty(self):
+        folder = self._makeOne()
+        self.assertRaises(TypeError, folder.add, '', 'foo')
 
     def test___setitem__exists(self):
         dummy = DummyModel()
@@ -270,9 +290,9 @@ class FolderTests(unittest.TestCase, PlacelessSetup):
         self.assertEqual(folder._num_objects(), 3)
 
 class UnicodifyTests(unittest.TestCase):
-    def _callFUT(self, name):
+    def _callFUT(self, name, sysencoding=None):
         from repoze.folder import unicodify
-        return unicodify(name)
+        return unicodify(name, sysencoding)
 
     def test_default_encoding_works(self):
         result = self._callFUT('abc')
@@ -289,6 +309,10 @@ class UnicodifyTests(unittest.TestCase):
     def test_unknown_encoding_breaks(self):
         name = unicode('La Pe\xc3\xb1a', 'utf-8').encode('utf-16')
         self.assertRaises(TypeError, self._callFUT, name)
+
+    def test_sysencoding_utf8(self):
+        name = unicode('La Pe\xc3\xb1a', 'utf-8').encode('utf-16')
+        self.assertRaises(TypeError, self._callFUT, name, 'utf-8')
 
 class DummyModel:
     pass
