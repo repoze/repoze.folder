@@ -55,7 +55,8 @@ setup(name='repoze.folder',
       namespace_packages=['repoze'],
       zip_safe=False,
       install_requires= requires,
-      tests_require = requires + ['Sphinx', 'repoze.sphinx.autointerface'],
+      tests_require = requires + ['Sphinx', 'repoze.sphinx.autointerface',
+                                  'zope.testing'],
       test_suite="repoze.folder",
       entry_points = """\
       """
