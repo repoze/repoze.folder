@@ -239,14 +239,14 @@ def unicodify(name, encoding=None):
     except UnicodeError:
         if encoding in ('utf-8', 'utf8'):
             raise TypeError(
-                'Byte string names be decodeable using the system encoding '
-                'of "utf-8" (%s)' % name
+                'Byte string names must be decodeable using the system '
+                'encoding of "utf-8" (%s)' % name
                 )
         try:
             name = unicode(name, 'utf-8')
         except UnicodeError:
             raise TypeError(
-                'Byte string names be decodeable using either the system '
+                'Byte string names must be decodeable using either the system '
                 'encoding of "%s" or the "utf-8" encoding (%s)' % (
                 sysencoding, name)
                 )
