@@ -195,6 +195,54 @@ class FolderTests(unittest.TestCase, PlacelessSetup):
         folder = self._makeOne({'a':dummy})
         self.assertTrue(folder.remove("a") is dummy)
 
+    def test_pop_success(self):
+        from repoze.folder.interfaces import IObjectEvent
+        from repoze.folder.interfaces import IObjectRemovedEvent
+        from repoze.folder.interfaces import IObjectWillBeRemovedEvent
+        dummy = DummyModel()
+        dummy.__parent__ = None
+        dummy.__name__ = None
+        events = []
+        def listener(object, event):
+            events.append(event)
+        self._registerEventListener(listener, IObjectEvent)
+        folder = self._makeOne({'a':dummy})
+        result = folder.pop('a')
+        self.assertEqual(result, dummy)
+        self.assertEqual(folder._num_objects(), 0)
+        self.assertEqual(len(events), 2)
+        self.failUnless(IObjectWillBeRemovedEvent.providedBy(events[0]))
+        self.failUnless(IObjectRemovedEvent.providedBy(events[1]))
+        self.assertEqual(events[0].object, dummy)
+        self.assertEqual(events[0].parent, folder)
+        self.assertEqual(events[0].name, 'a')
+        self.assertEqual(events[1].object, dummy)
+        self.assertEqual(events[1].parent, folder)
+        self.assertEqual(events[1].name, 'a')
+        self.failIf(hasattr(dummy, '__parent__'))
+        self.failIf(hasattr(dummy, '__name__'))
+
+    def test_pop_fail_nodefault(self):
+        dummy = DummyModel()
+        dummy.__parent__ = None
+        dummy.__name__ = None
+        events = []
+        def listener(object, event):
+            events.append(event)
+        folder = self._makeOne()
+        self.assertRaises(KeyError, folder.pop, 'a')
+
+    def test_pop_fail_withdefault(self):
+        dummy = DummyModel()
+        dummy.__parent__ = None
+        dummy.__name__ = None
+        events = []
+        def listener(object, event):
+            events.append(event)
+        folder = self._makeOne()
+        result = folder.pop('a', 123)
+        self.assertEqual(result, 123)
+
     def test_remove_send_events(self):
         from repoze.folder.interfaces import IObjectEvent
         from repoze.folder.interfaces import IObjectRemovedEvent

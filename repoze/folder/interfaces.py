@@ -2,6 +2,8 @@ from zope.component.interfaces import IObjectEvent
 from zope.interface import Interface
 from zope.interface import Attribute
 
+marker = object()
+
 class IObjectWillBeAddedEvent(IObjectEvent):
     """ An event type sent when an before an object is added """
     object = Attribute('The object being added')
@@ -88,6 +90,12 @@ class IFolder(Interface):
         ``False`` or any other value that evaluates to false, folder
         events will not be sent.
         """
+    def pop(name, default=marker):
+        """ Remove the item named ``name`` and return it.  If ``name``
+        doesn't exist in the folder, raise a :exc:`KeyError` unless
+        ``default`` was provided, in which case return the default
+        value.  This method is new in repoze.folder 0.5."""
+        
     def __delitem__(name):
         """
         Delete an object value from this folder that is already
@@ -112,5 +120,6 @@ class IFolder(Interface):
         flag is ``True``, meaning this method behaves exactly like
         ``__delitem__`` (events are sent).  If ``send_events`` is
         ``False`` or any other value that evaluates to false, folder
-        events will not be sent.
+        events will not be sent.  The result is the removed object in
+        repoze.folder 0.5+; in earlier versions it will be ``None``.
         """

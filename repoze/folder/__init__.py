@@ -7,6 +7,8 @@ from zope.component.event import objectEventNotify
 from persistent import Persistent
 
 from repoze.folder.interfaces import IFolder
+from repoze.folder.interfaces import marker
+
 from repoze.folder.events import ObjectAddedEvent
 from repoze.folder.events import ObjectWillBeAddedEvent
 from repoze.folder.events import ObjectRemovedEvent
@@ -226,7 +228,14 @@ class Folder(Persistent):
 
         return other
 
-    pop = remove
+    def pop(self, name, default=marker):
+        try:
+            result = self.remove(name)
+        except KeyError:
+            if default is marker:
+                raise
+            return default
+        return result
 
     def __repr__(self):
         klass = self.__class__
