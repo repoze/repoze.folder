@@ -23,7 +23,6 @@ class FolderTests(unittest.TestCase, PlacelessSetup):
         verifyClass(IFolder, klass)
         
     def test_inst_provides_IFolder(self):
-        klass = self._getTargetClass()
         from zope.interface.verify import verifyObject
         from repoze.folder.interfaces import IFolder
         inst = self._makeOne()
@@ -188,6 +187,13 @@ class FolderTests(unittest.TestCase, PlacelessSetup):
         self.assertEqual(events[1].name, 'a')
         self.failIf(hasattr(dummy, '__parent__'))
         self.failIf(hasattr(dummy, '__name__'))
+
+    def test_remove_returns_object(self):
+        dummy = DummyModel()
+        dummy.__parent__ = None
+        dummy.__name__ = None
+        folder = self._makeOne({'a':dummy})
+        self.assertTrue(folder.remove("a") is dummy)
 
     def test_remove_send_events(self):
         from repoze.folder.interfaces import IObjectEvent

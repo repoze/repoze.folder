@@ -201,7 +201,7 @@ class Folder(Persistent):
         flag is ``True``, meaning this method behaves exactly like
         ``__delitem__`` (events are sent).  If ``send_events`` is
         ``False`` or any other value that evaluates to false, folder
-        events will not be sent.
+        events will not be sent. The removed object is returned.
         """
         name = unicodify(name)
         other = self.data[name]
@@ -223,6 +223,10 @@ class Folder(Persistent):
         self._num_objects.change(-1)
         if send_events:
             objectEventNotify(ObjectRemovedEvent(other, self, name))
+
+        return other
+
+    pop = remove
 
     def __repr__(self):
         klass = self.__class__

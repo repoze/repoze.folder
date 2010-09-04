@@ -1,7 +1,8 @@
 Next release
 ============
 
-- ...
+- Make ``remove`` return the removed object, and add ``pop`` as an alias
+  for ``remove``.
 
 0.4 (2009/06/15)
 ================
