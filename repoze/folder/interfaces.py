@@ -94,7 +94,8 @@ class IFolder(Interface):
         """ Remove the item named ``name`` and return it.  If ``name``
         doesn't exist in the folder, raise a :exc:`KeyError` unless
         ``default`` was provided, in which case return the default
-        value.  This method is new in repoze.folder 0.5."""
+        value.  This method will cause events to be sent
+        uncondtionally.  This method is new in repoze.folder 0.5."""
         
     def __delitem__(name):
         """
