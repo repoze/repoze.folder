@@ -5,31 +5,20 @@ from repoze.folder.interfaces import IObjectWillBeAddedEvent
 from repoze.folder.interfaces import IObjectRemovedEvent
 from repoze.folder.interfaces import IObjectWillBeRemovedEvent
 
-class ObjectAddedEvent(object):
+class _ObjectEvent(object):
+    def __init__(self, object, parent, name):
+        self.object = object
+        self.parent = parent
+        self.name = name
+
+class ObjectAddedEvent(_ObjectEvent):
     implements(IObjectAddedEvent)
-    def __init__(self, object, parent, name):
-        self.object = object
-        self.parent = parent
-        self.name = name
 
-class ObjectWillBeAddedEvent(object):
+class ObjectWillBeAddedEvent(_ObjectEvent):
     implements(IObjectWillBeAddedEvent)
-    def __init__(self, object, parent, name):
-        self.object = object
-        self.parent = parent
-        self.name = name
 
-class ObjectRemovedEvent(object):
+class ObjectRemovedEvent(_ObjectEvent):
     implements(IObjectRemovedEvent)
-    def __init__(self, object, parent, name):
-        self.object = object
-        self.parent = parent
-        self.name = name
 
-class ObjectWillBeRemovedEvent(object):
+class ObjectWillBeRemovedEvent(_ObjectEvent):
     implements(IObjectWillBeRemovedEvent)
-    def __init__(self, object, parent, name):
-        self.object = object
-        self.parent = parent
-        self.name = name
-    
