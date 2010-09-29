@@ -390,6 +390,14 @@ class FolderTests(unittest.TestCase, PlacelessSetup):
         folder['b'] = DummyModel()
         self.assertRaises(KeyError, folder.moveUp, 'nonesuch')
 
+    def test_moveUp_negative_delta(self):
+        folder = self._makeOne()
+        folder.order = []
+        folder['a'] = DummyModel()
+        folder['b'] = DummyModel()
+        folder['c'] = DummyModel()
+        self.assertRaises(ValueError, folder.moveUp, 'b', -1)
+
     def test_moveUp_hit(self):
         from repoze.folder.interfaces import IObjectEvent
         from repoze.folder.interfaces import IObjectWillBeReorderedEvent
@@ -470,6 +478,14 @@ class FolderTests(unittest.TestCase, PlacelessSetup):
         folder['a'] = DummyModel()
         folder['b'] = DummyModel()
         self.assertRaises(KeyError, folder.moveDown, 'nonesuch')
+
+    def test_moveDown_negative_delta(self):
+        folder = self._makeOne()
+        folder.order = []
+        folder['a'] = DummyModel()
+        folder['b'] = DummyModel()
+        folder['c'] = DummyModel()
+        self.assertRaises(ValueError, folder.moveDown, 'b', -1)
 
     def test_moveDown_hit(self):
         from repoze.folder.interfaces import IObjectEvent

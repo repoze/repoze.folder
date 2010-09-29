@@ -201,6 +201,9 @@ class Folder(Persistent):
         if self._order is None:
             raise ValueError('Folder is not ordered')
 
+        if delta < 1:
+            raise ValueError('Delta must be a positive integer')
+
         obj = self.data[name]
         index = source = self._order.index(name)
         target = max(index - delta, 0)
@@ -223,6 +226,9 @@ class Folder(Persistent):
         """
         if self._order is None:
             raise ValueError('Folder is not ordered')
+
+        if delta < 1:
+            raise ValueError('Delta must be a positive integer')
 
         obj = self.data[name]
         index = source = self._order.index(name)
