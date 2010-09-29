@@ -12,7 +12,9 @@ from repoze.folder.interfaces import marker
 from repoze.folder.events import ObjectAddedEvent
 from repoze.folder.events import ObjectWillBeAddedEvent
 from repoze.folder.events import ObjectRemovedEvent
+from repoze.folder.events import ObjectReorderedEvent
 from repoze.folder.events import ObjectWillBeRemovedEvent
+from repoze.folder.events import ObjectWillBeReorderedEvent
 
 from BTrees.OOBTree import OOBTree
 from BTrees.Length import Length
@@ -33,6 +35,19 @@ class Folder(Persistent):
     __name__ = None
     __parent__ = None
 
+    # Default uses ordering of underlying BTree.
+    _order = None
+    def _get_order(self):
+        if self._order is not None:
+            return self._order
+        return self.data.keys()
+    def _set_order(self, value):
+        # XXX:  should we test against self.data.keys()?
+        self._order = [unicodify(x) for x in value]
+    def _del_order(self):
+        del self._order
+    order = property(_get_order, _set_order, _del_order)
+
     implements(IFolder)
 
     def __init__(self, data=None):
@@ -44,6 +59,8 @@ class Folder(Persistent):
     def keys(self):
         """ See IFolder.
         """
+        if self._order is not None:
+            return self._order
         return self.data.keys()
 
     __iter__ = keys
@@ -51,11 +68,15 @@ class Folder(Persistent):
     def values(self):
         """ See IFolder.
         """
+        if self._order is not None:
+            return [self.data[name] for name in self.order]
         return self.data.values()
 
     def items(self):
         """ See IFolder.
         """
+        if self._order is not None:
+            return [(name, self.data[name]) for name in self.order]
         return self.data.items()
 
     def __len__(self):
@@ -120,6 +141,10 @@ class Folder(Persistent):
 
         self.data[name] = other
         self._num_objects.change(1)
+
+        if self._order is not None:
+            self._order.append(name)
+
         if send_events:
             objectEventNotify(ObjectAddedEvent(other, self, name))
 
@@ -139,6 +164,7 @@ class Folder(Persistent):
 
         if hasattr(other, '__parent__'):
             del other.__parent__
+
         if hasattr(other, '__name__'):
             del other.__name__
 
@@ -149,6 +175,10 @@ class Folder(Persistent):
 
         del self.data[name]
         self._num_objects.change(-1)
+
+        if self._order is not None:
+            self._order.remove(name)
+
         if send_events:
             objectEventNotify(ObjectRemovedEvent(other, self, name))
 
@@ -164,6 +194,52 @@ class Folder(Persistent):
                 raise
             return default
         return result
+
+    def moveUp(self, name, delta=1, send_events=True):
+        """ See IFolder.
+        """
+        if self._order is None:
+            raise ValueError('Folder is not ordered')
+
+        obj = self.data[name]
+        index = source = self._order.index(name)
+        target = max(index - delta, 0)
+
+        if send_events:
+            objectEventNotify(
+                ObjectWillBeReorderedEvent(obj, self, name, source, target))
+
+        o = self._order
+        while index > target:
+            o[index-1], o[index] = o[index], o[index-1]
+            index -= 1
+
+        if send_events:
+            objectEventNotify(
+                ObjectReorderedEvent(obj, self, name, source, target))
+
+    def moveDown(self, name, delta=1, send_events=True):
+        """ See IFolder.
+        """
+        if self._order is None:
+            raise ValueError('Folder is not ordered')
+
+        obj = self.data[name]
+        index = source = self._order.index(name)
+        target = min(index + delta, len(self._order) - 1)
+
+        if send_events:
+            objectEventNotify(
+                ObjectWillBeReorderedEvent(obj, self, name, source, target))
+
+        o = self._order
+        while index < target:
+            o[index], o[index+1] = o[index+1], o[index]
+            index += 1
+
+        if send_events:
+            objectEventNotify(
+                ObjectReorderedEvent(obj, self, name, source, target))
 
     def __repr__(self):
         klass = self.__class__

@@ -36,11 +36,45 @@ class FolderTests(unittest.TestCase, PlacelessSetup):
 
     def test_keys(self):
         folder = self._makeOne({'a':1, 'b':2})
-        self.assertEqual(sorted(list(folder.keys())), ['a', 'b'])
+        self.assertEqual(list(folder.keys()), ['a', 'b'])
+
+    def test_keys_with_order(self):
+        folder = self._makeOne({'a':1, 'b':2})
+        folder.order = ['b', 'a']
+        self.assertEqual(list(folder.keys()), ['b', 'a'])
+
+    def test_keys_after_del_order(self):
+        folder = self._makeOne({'a':1, 'b':2})
+        folder.order = ['b', 'a']
+        del folder.order
+        self.assertEqual(list(folder.keys()), ['a', 'b'])
 
     def test__iter__(self):
         folder = self._makeOne({'a':1, 'b':2})
-        self.assertEqual(sorted(list(folder.__iter__())), ['a', 'b'])
+        self.assertEqual(list(folder.__iter__()), ['a', 'b'])
+
+    def test__iter___with_order(self):
+        folder = self._makeOne({'a':1, 'b':2})
+        folder.order = ['b', 'a']
+        self.assertEqual(list(folder.__iter__()), ['b', 'a'])
+
+    def test_values(self):
+        folder = self._makeOne({'a':1, 'b':2})
+        self.assertEqual(list(folder.values()), [1, 2])
+
+    def test_values_with_order(self):
+        folder = self._makeOne({'a':1, 'b':2})
+        folder.order = ['b', 'a']
+        self.assertEqual(list(folder.values()), [2, 1])
+
+    def test_items(self):
+        folder = self._makeOne({'a':1, 'b':2})
+        self.assertEqual(list(folder.items()), [('a', 1), ('b', 2)])
+
+    def test_items_with_order(self):
+        folder = self._makeOne({'a':1, 'b':2})
+        folder.order = ['b', 'a']
+        self.assertEqual(list(folder.items()), [('b', 2), ('a', 1)])
 
     def test__len__(self):
         folder = self._makeOne({'a':1, 'b':2})
@@ -59,14 +93,6 @@ class FolderTests(unittest.TestCase, PlacelessSetup):
         folder = self._makeOne({'a':1, 'b':2})
         self.failUnless('a' in folder)
         self.failIf('c' in folder)
-
-    def test_values(self):
-        folder = self._makeOne({'a':1, 'b':2})
-        self.assertEqual(sorted(list(folder.values())), [1, 2])
-
-    def test_items(self):
-        folder = self._makeOne({'a':1, 'b':2})
-        self.assertEqual(sorted(list(folder.items())), [('a', 1), ('b', 2)])
 
     def test___nonzero__(self):
         folder = self._makeOne()
@@ -108,6 +134,14 @@ class FolderTests(unittest.TestCase, PlacelessSetup):
         self.assertEqual(events[1].name, 'a')
         self.assertEqual(folder['a'], dummy)
 
+    def test_add_name_wrongtype(self):
+        folder = self._makeOne()
+        self.assertRaises(TypeError, folder.add, 1, 'foo')
+
+    def test_add_name_empty(self):
+        folder = self._makeOne()
+        self.assertRaises(TypeError, folder.add, '', 'foo')
+
     def test_add_send_events(self):
         from repoze.folder.interfaces import IObjectEvent
         from repoze.folder.interfaces import IObjectWillBeAddedEvent
@@ -136,7 +170,7 @@ class FolderTests(unittest.TestCase, PlacelessSetup):
         from repoze.folder.interfaces import IObjectEvent
         events = []
         def listener(object, event):
-            events.append(event)
+            events.append(event) #pragma NO COVER
         self._registerEventListener(listener, IObjectEvent)
         dummy = DummyModel()
         folder = self._makeOne()
@@ -146,13 +180,13 @@ class FolderTests(unittest.TestCase, PlacelessSetup):
         self.assertEqual(len(events), 0)
         self.assertEqual(folder['a'], dummy)
 
-    def test_add_name_wrongtype(self):
+    def test_add_with_order_appends_name(self):
         folder = self._makeOne()
-        self.assertRaises(TypeError, folder.add, 1, 'foo')
-
-    def test_add_name_empty(self):
-        folder = self._makeOne()
-        self.assertRaises(TypeError, folder.add, '', 'foo')
+        folder.order = []
+        folder.add('a', DummyModel())
+        self.assertEqual(folder.order, ['a'])
+        folder.add('b', DummyModel())
+        self.assertEqual(folder.order, ['a', 'b'])
 
     def test___setitem__exists(self):
         dummy = DummyModel()
@@ -188,60 +222,16 @@ class FolderTests(unittest.TestCase, PlacelessSetup):
         self.failIf(hasattr(dummy, '__parent__'))
         self.failIf(hasattr(dummy, '__name__'))
 
+    def test_remove_miss(self):
+        folder = self._makeOne()
+        self.assertRaises(KeyError, folder.remove, "nonesuch")
+
     def test_remove_returns_object(self):
         dummy = DummyModel()
         dummy.__parent__ = None
         dummy.__name__ = None
         folder = self._makeOne({'a':dummy})
         self.assertTrue(folder.remove("a") is dummy)
-
-    def test_pop_success(self):
-        from repoze.folder.interfaces import IObjectEvent
-        from repoze.folder.interfaces import IObjectRemovedEvent
-        from repoze.folder.interfaces import IObjectWillBeRemovedEvent
-        dummy = DummyModel()
-        dummy.__parent__ = None
-        dummy.__name__ = None
-        events = []
-        def listener(object, event):
-            events.append(event)
-        self._registerEventListener(listener, IObjectEvent)
-        folder = self._makeOne({'a':dummy})
-        result = folder.pop('a')
-        self.assertEqual(result, dummy)
-        self.assertEqual(folder._num_objects(), 0)
-        self.assertEqual(len(events), 2)
-        self.failUnless(IObjectWillBeRemovedEvent.providedBy(events[0]))
-        self.failUnless(IObjectRemovedEvent.providedBy(events[1]))
-        self.assertEqual(events[0].object, dummy)
-        self.assertEqual(events[0].parent, folder)
-        self.assertEqual(events[0].name, 'a')
-        self.assertEqual(events[1].object, dummy)
-        self.assertEqual(events[1].parent, folder)
-        self.assertEqual(events[1].name, 'a')
-        self.failIf(hasattr(dummy, '__parent__'))
-        self.failIf(hasattr(dummy, '__name__'))
-
-    def test_pop_fail_nodefault(self):
-        dummy = DummyModel()
-        dummy.__parent__ = None
-        dummy.__name__ = None
-        events = []
-        def listener(object, event):
-            events.append(event)
-        folder = self._makeOne()
-        self.assertRaises(KeyError, folder.pop, 'a')
-
-    def test_pop_fail_withdefault(self):
-        dummy = DummyModel()
-        dummy.__parent__ = None
-        dummy.__name__ = None
-        events = []
-        def listener(object, event):
-            events.append(event)
-        folder = self._makeOne()
-        result = folder.pop('a', 123)
-        self.assertEqual(result, 123)
 
     def test_remove_send_events(self):
         from repoze.folder.interfaces import IObjectEvent
@@ -274,7 +264,7 @@ class FolderTests(unittest.TestCase, PlacelessSetup):
         from repoze.folder.interfaces import IObjectEvent
         events = []
         def listener(object, event):
-            events.append(event)
+            events.append(event) #pragma NO COVER
         self._registerEventListener(listener, IObjectEvent)
         dummy = DummyModel()
         dummy.__parent__ = None
@@ -286,6 +276,50 @@ class FolderTests(unittest.TestCase, PlacelessSetup):
         self.assertEqual(len(events), 0)
         self.failIf(hasattr(dummy, '__parent__'))
         self.failIf(hasattr(dummy, '__name__'))
+
+    def test_remove_with_order_removes_name(self):
+        folder = self._makeOne()
+        folder['a'] = DummyModel()
+        folder['b'] = DummyModel()
+        folder.order = ['a', 'b']
+        folder.remove('a')
+        self.assertEqual(folder.order, ['b'])
+
+    def test_pop_success(self):
+        from repoze.folder.interfaces import IObjectEvent
+        from repoze.folder.interfaces import IObjectRemovedEvent
+        from repoze.folder.interfaces import IObjectWillBeRemovedEvent
+        dummy = DummyModel()
+        dummy.__parent__ = None
+        dummy.__name__ = None
+        events = []
+        def listener(object, event):
+            events.append(event)
+        self._registerEventListener(listener, IObjectEvent)
+        folder = self._makeOne({'a':dummy})
+        result = folder.pop('a')
+        self.assertEqual(result, dummy)
+        self.assertEqual(folder._num_objects(), 0)
+        self.assertEqual(len(events), 2)
+        self.failUnless(IObjectWillBeRemovedEvent.providedBy(events[0]))
+        self.failUnless(IObjectRemovedEvent.providedBy(events[1]))
+        self.assertEqual(events[0].object, dummy)
+        self.assertEqual(events[0].parent, folder)
+        self.assertEqual(events[0].name, 'a')
+        self.assertEqual(events[1].object, dummy)
+        self.assertEqual(events[1].parent, folder)
+        self.assertEqual(events[1].name, 'a')
+        self.failIf(hasattr(dummy, '__parent__'))
+        self.failIf(hasattr(dummy, '__name__'))
+
+    def test_pop_fail_nodefault(self):
+        folder = self._makeOne()
+        self.assertRaises(KeyError, folder.pop, 'nonesuch')
+
+    def test_pop_fail_withdefault(self):
+        folder = self._makeOne()
+        result = folder.pop('a', 123)
+        self.assertEqual(result, 123)
 
     def test_repr(self):
         folder = self._makeOne()
@@ -342,6 +376,169 @@ class FolderTests(unittest.TestCase, PlacelessSetup):
         folder._num_objects = None
         folder['c'] = DummyModel()
         self.assertEqual(folder._num_objects(), 3)
+
+    def test_moveUp_not_ordered(self):
+        folder = self._makeOne()
+        folder['a'] = DummyModel()
+        folder['b'] = DummyModel()
+        self.assertRaises(ValueError, folder.moveUp, 'a')
+
+    def test_moveUp_missing_key(self):
+        folder = self._makeOne()
+        folder.order = []
+        folder['a'] = DummyModel()
+        folder['b'] = DummyModel()
+        self.assertRaises(KeyError, folder.moveUp, 'nonesuch')
+
+    def test_moveUp_hit(self):
+        from repoze.folder.interfaces import IObjectEvent
+        from repoze.folder.interfaces import IObjectWillBeReorderedEvent
+        from repoze.folder.interfaces import IObjectReorderedEvent
+        events = []
+        def listener(object, event):
+            events.append(event)
+        folder = self._makeOne()
+        folder.order = []
+        folder['a'] = DummyModel()
+        folder['b'] = DummyModel()
+        self._registerEventListener(listener, IObjectEvent)
+
+        folder.moveUp('b')
+        self.assertEqual(folder.order, ['b', 'a'])
+
+        self.assertEqual(len(events), 2)
+        self.failUnless(IObjectWillBeReorderedEvent.providedBy(events[0]))
+        self.failUnless(IObjectReorderedEvent.providedBy(events[1]))
+        for event in events:
+            self.failUnless(event.parent is folder)
+            self.failUnless(event.object is folder['b'])
+            self.assertEqual(event.name, 'b')
+            self.assertEqual(event.previous_index, 1)
+            self.assertEqual(event.new_index, 0)
+
+    def test_moveUp_delta_exceeds_top(self):
+        from repoze.folder.interfaces import IObjectEvent
+        from repoze.folder.interfaces import IObjectWillBeReorderedEvent
+        from repoze.folder.interfaces import IObjectReorderedEvent
+        events = []
+        def listener(object, event):
+            events.append(event)
+        folder = self._makeOne()
+        folder.order = []
+        folder['a'] = DummyModel()
+        folder['b'] = DummyModel()
+        folder['c'] = DummyModel()
+        self._registerEventListener(listener, IObjectEvent)
+
+        folder.moveUp('c', 5)
+        self.assertEqual(folder.order, ['c', 'a', 'b'])
+
+        self.assertEqual(len(events), 2)
+        self.failUnless(IObjectWillBeReorderedEvent.providedBy(events[0]))
+        self.failUnless(IObjectReorderedEvent.providedBy(events[1]))
+        for event in events:
+            self.failUnless(event.parent is folder)
+            self.failUnless(event.object is folder['c'])
+            self.assertEqual(event.name, 'c')
+            self.assertEqual(event.previous_index, 2)
+            self.assertEqual(event.new_index, 0)
+
+    def test_moveUp_suppress_events(self):
+        from repoze.folder.interfaces import IObjectEvent
+        events = []
+        def listener(object, event):
+            events.append(event) #pragma NO COVER
+        folder = self._makeOne()
+        folder.order = []
+        folder['a'] = DummyModel()
+        folder['b'] = DummyModel()
+        self._registerEventListener(listener, IObjectEvent)
+
+        folder.moveUp('b', send_events=False)
+
+        self.assertEqual(len(events), 0)
+
+    def test_moveDown_not_ordered(self):
+        folder = self._makeOne()
+        folder['a'] = DummyModel()
+        folder['b'] = DummyModel()
+        self.assertRaises(ValueError, folder.moveDown, 'a')
+
+    def test_moveDown_missing_key(self):
+        folder = self._makeOne()
+        folder.order = []
+        folder['a'] = DummyModel()
+        folder['b'] = DummyModel()
+        self.assertRaises(KeyError, folder.moveDown, 'nonesuch')
+
+    def test_moveDown_hit(self):
+        from repoze.folder.interfaces import IObjectEvent
+        from repoze.folder.interfaces import IObjectWillBeReorderedEvent
+        from repoze.folder.interfaces import IObjectReorderedEvent
+        events = []
+        def listener(object, event):
+            events.append(event)
+        folder = self._makeOne()
+        folder.order = []
+        folder['a'] = DummyModel()
+        folder['b'] = DummyModel()
+        self._registerEventListener(listener, IObjectEvent)
+
+        folder.moveDown('a')
+        self.assertEqual(folder.order, ['b', 'a'])
+
+        self.assertEqual(len(events), 2)
+        self.failUnless(IObjectWillBeReorderedEvent.providedBy(events[0]))
+        self.failUnless(IObjectReorderedEvent.providedBy(events[1]))
+        for event in events:
+            self.failUnless(event.parent is folder)
+            self.failUnless(event.object is folder['a'])
+            self.assertEqual(event.name, 'a')
+            self.assertEqual(event.previous_index, 0)
+            self.assertEqual(event.new_index, 1)
+
+    def test_moveDown_delta_exceeds_bottom(self):
+        from repoze.folder.interfaces import IObjectEvent
+        from repoze.folder.interfaces import IObjectWillBeReorderedEvent
+        from repoze.folder.interfaces import IObjectReorderedEvent
+        events = []
+        def listener(object, event):
+            events.append(event)
+        folder = self._makeOne()
+        folder.order = []
+        folder['a'] = DummyModel()
+        folder['b'] = DummyModel()
+        folder['c'] = DummyModel()
+        self._registerEventListener(listener, IObjectEvent)
+
+        folder.moveDown('a', 5)
+        self.assertEqual(folder.order, ['b', 'c', 'a'])
+
+        self.assertEqual(len(events), 2)
+        self.failUnless(IObjectWillBeReorderedEvent.providedBy(events[0]))
+        self.failUnless(IObjectReorderedEvent.providedBy(events[1]))
+        for event in events:
+            self.failUnless(event.parent is folder)
+            self.failUnless(event.object is folder['a'])
+            self.assertEqual(event.name, 'a')
+            self.assertEqual(event.previous_index, 0)
+            self.assertEqual(event.new_index, 2)
+
+    def test_moveDown_suppress_events(self):
+        from repoze.folder.interfaces import IObjectEvent
+        events = []
+        def listener(object, event):
+            events.append(event) #pragma NO COVER
+        folder = self._makeOne()
+        folder.order = []
+        folder['a'] = DummyModel()
+        folder['b'] = DummyModel()
+        self._registerEventListener(listener, IObjectEvent)
+
+        folder.moveDown('a', send_events=False)
+
+        self.assertEqual(len(events), 0)
+
 
 class UnicodifyTests(unittest.TestCase):
     def _callFUT(self, name, sysencoding=None):
