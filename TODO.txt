@@ -1,11 +1,11 @@
 repoze.atemplate README
 =======================
 
-- [_] Add optional per-instance ordering support.
+- [X] Add optional per-instance ordering support.
 
-      o Add a new attribute, 'order' (class default is None).
+      * Add a new attribute, 'order' (class default is None).
 
-      o In iteration methods, if 'order' is not None, use it to control
+      * In iteration methods, if 'order' is not None, use it to control
         order of iteration.
 
-      o Add APIs for moving a given name up or down in the order.
+      * Add APIs for moving a given name up or down in the order.
