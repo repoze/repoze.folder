@@ -29,6 +29,18 @@ class IObjectRemovedEvent(IObjectEvent):
     parent = Attribute('The folder from which the object is being removed')
     name = Attribute('The name of the object within the folder')
 
+class IObjectWillBeReorderedEvent(IObjectEvent):
+    """ An event type sent before an object is moved within its folder """
+    object = Attribute('The object being moved')
+    parent = Attribute('The folder in which the object is being moved')
+    name = Attribute('The name of the object within the folder')
+
+class IObjectReorderedEvent(IObjectEvent):
+    """ An event type sent when an object is moved within its folder """
+    object = Attribute('The object being moved')
+    parent = Attribute('The folder in which the object is being moved')
+    name = Attribute('The name of the object within the folder')
+
 class IFolder(Interface):
     """ A Folder which stores objects using Unicode keys.
 
@@ -36,8 +48,15 @@ class IFolder(Interface):
     name to either be Unicode or a byte string decodable using the
     default system encoding or the UTF-8 encoding."""
 
+    order = Attribute("""Order of items within the folder
+
+    (Optional) If not set on the instance, objects are iterated in an
+    arbitrary order based on the underlying data store.""")
+
     def keys():
         """ Return an iterable sequence of object names present in the folder.
+
+        Respect ``order``, if set.
         """
 
     def __iter__():
@@ -46,10 +65,14 @@ class IFolder(Interface):
 
     def values():
         """ Return an iterable sequence of the values present in the folder.
+
+        Respect ``order``, if set.
         """
 
     def items():
         """ Return an iterable sequence of (name, value) pairs in the folder.
+
+        Respect ``order``, if set.
         """
 
     def get(name, default=None):
@@ -150,6 +173,54 @@ class IFolder(Interface):
 
     def remove(name, send_events=True):
         """ Same thing as ``__delitem__``.
+
+        If ``send_events`` is false, suppress the sending of folder events.
+        """
+
+    def moveUp(name, delta=1, send_events=True):
+        """ Move the object stored under ``name`` up in the folder order.
+
+        If the folder's ``order`` attribute is None (i.e., the folder's
+        order support is disabled), raise :exc:``TypeError``.
+
+        ``name`` must be a Unicode object or a bytestring object.
+
+        If ``name`` is a bytestring object, it must be decodable using the
+        system default encoding or the UTF-8 encoding.
+
+        If no object is stored in the folder under ``name``, raise a
+        :exc:`KeyError`.
+
+        ``delta`` must be an integer representing the number of positions
+        in the order to move ``name`` up.
+
+        When this method is called, emit an ``IObjectWillBeMovedEvent`` event
+        before the object's position changes.  Emit an ``IObjectMovedEvent``
+        after the object's position changes.
+
+        If ``send_events`` is false, suppress the sending of folder events.
+        """
+
+    def moveDown(name, delta=1, send_events=True):
+        """ Move the object stored under ``name`` down in the folder order.
+
+        If the folder's ``order`` attribute is None (i.e., the folder's
+        order support is disabled), raise :exc:``TypeError``.
+
+        ``name`` must be a Unicode object or a bytestring object.
+
+        If ``name`` is a bytestring object, it must be decodable using the
+        system default encoding or the UTF-8 encoding.
+
+        If no object is stored in the folder under ``name``, raise a
+        :exc:`KeyError`.
+
+        ``delta`` must be an integer representing the number of positions
+        in the order to move ``name`` down.
+
+        When this method is called, emit an ``IObjectWillBeMovedEvent`` event
+        before the object's position changes.  Emit an ``IObjectMovedEvent``
+        after the object's position changes.
 
         If ``send_events`` is false, suppress the sending of folder events.
         """
