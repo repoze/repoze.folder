@@ -198,14 +198,8 @@ class Folder(Persistent):
     def moveUp(self, name, delta=1, send_events=True):
         """ See IFolder.
         """
-        if self._order is None:
-            raise ValueError('Folder is not ordered')
-
-        if delta < 1:
-            raise ValueError('Delta must be a positive integer')
-
-        obj = self.data[name]
-        index = source = self._order.index(name)
+        obj, source = self._get_obj_and_index(name, delta)
+        index = source
         target = max(index - delta, 0)
 
         if send_events:
@@ -216,6 +210,7 @@ class Folder(Persistent):
         while index > target:
             o[index-1], o[index] = o[index], o[index-1]
             index -= 1
+        self.order = o
 
         if send_events:
             objectEventNotify(
@@ -224,14 +219,8 @@ class Folder(Persistent):
     def moveDown(self, name, delta=1, send_events=True):
         """ See IFolder.
         """
-        if self._order is None:
-            raise ValueError('Folder is not ordered')
-
-        if delta < 1:
-            raise ValueError('Delta must be a positive integer')
-
-        obj = self.data[name]
-        index = source = self._order.index(name)
+        obj, source = self._get_obj_and_index(name, delta)
+        index = source
         target = min(index + delta, len(self._order) - 1)
 
         if send_events:
@@ -242,10 +231,20 @@ class Folder(Persistent):
         while index < target:
             o[index], o[index+1] = o[index+1], o[index]
             index += 1
+        self.order = o
 
         if send_events:
             objectEventNotify(
                 ObjectReorderedEvent(obj, self, name, source, target))
+
+    def _get_obj_and_index(self, name, delta):
+        if self._order is None:
+            raise ValueError('Folder is not ordered')
+
+        if delta < 1:
+            raise ValueError('Delta must be a positive integer')
+
+        return self.data[name], self._order.index(name)
 
     def __repr__(self):
         klass = self.__class__
