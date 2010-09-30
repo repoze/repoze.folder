@@ -12,9 +12,7 @@ from repoze.folder.interfaces import marker
 from repoze.folder.events import ObjectAddedEvent
 from repoze.folder.events import ObjectWillBeAddedEvent
 from repoze.folder.events import ObjectRemovedEvent
-from repoze.folder.events import ObjectReorderedEvent
 from repoze.folder.events import ObjectWillBeRemovedEvent
-from repoze.folder.events import ObjectWillBeReorderedEvent
 
 from BTrees.OOBTree import OOBTree
 from BTrees.Length import Length
@@ -194,57 +192,6 @@ class Folder(Persistent):
                 raise
             return default
         return result
-
-    def moveUp(self, name, delta=1, send_events=True):
-        """ See IFolder.
-        """
-        obj, source = self._get_obj_and_index(name, delta)
-        index = source
-        target = max(index - delta, 0)
-
-        if send_events:
-            objectEventNotify(
-                ObjectWillBeReorderedEvent(obj, self, name, source, target))
-
-        o = self._order
-        while index > target:
-            o[index-1], o[index] = o[index], o[index-1]
-            index -= 1
-        self.order = o
-
-        if send_events:
-            objectEventNotify(
-                ObjectReorderedEvent(obj, self, name, source, target))
-
-    def moveDown(self, name, delta=1, send_events=True):
-        """ See IFolder.
-        """
-        obj, source = self._get_obj_and_index(name, delta)
-        index = source
-        target = min(index + delta, len(self._order) - 1)
-
-        if send_events:
-            objectEventNotify(
-                ObjectWillBeReorderedEvent(obj, self, name, source, target))
-
-        o = self._order
-        while index < target:
-            o[index], o[index+1] = o[index+1], o[index]
-            index += 1
-        self.order = o
-
-        if send_events:
-            objectEventNotify(
-                ObjectReorderedEvent(obj, self, name, source, target))
-
-    def _get_obj_and_index(self, name, delta):
-        if self._order is None:
-            raise ValueError('Folder is not ordered')
-
-        if delta < 1:
-            raise ValueError('Delta must be a positive integer')
-
-        return self.data[name], self._order.index(name)
 
     def __repr__(self):
         klass = self.__class__

@@ -3,9 +3,7 @@ from zope.interface import implements
 from repoze.folder.interfaces import IObjectAddedEvent
 from repoze.folder.interfaces import IObjectWillBeAddedEvent
 from repoze.folder.interfaces import IObjectRemovedEvent
-from repoze.folder.interfaces import IObjectReorderedEvent
 from repoze.folder.interfaces import IObjectWillBeRemovedEvent
-from repoze.folder.interfaces import IObjectWillBeReorderedEvent
 
 class _ObjectEvent(object):
     def __init__(self, object, parent, name):
@@ -32,9 +30,3 @@ class _ObjectOrderingEvent(object):
         self.name = name
         self.previous_index = previous_index
         self.new_index = new_index
-
-class ObjectWillBeReorderedEvent(_ObjectOrderingEvent):
-    implements(IObjectWillBeReorderedEvent)
-
-class ObjectReorderedEvent(_ObjectOrderingEvent):
-    implements(IObjectReorderedEvent)

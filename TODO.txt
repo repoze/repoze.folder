@@ -7,5 +7,3 @@ repoze.atemplate README
 
       * In iteration methods, if 'order' is not None, use it to control
         order of iteration.
-
-      * Add APIs for moving a given name up or down in the order.
