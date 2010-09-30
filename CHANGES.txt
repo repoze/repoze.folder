@@ -1,5 +1,5 @@
-After 0.5 (unreleased)
-======================
+0.6 (2010-09-30)
+================
 
 - Add support for ordering items in a folder.
 
