@@ -22,11 +22,3 @@ class ObjectRemovedEvent(_ObjectEvent):
 
 class ObjectWillBeRemovedEvent(_ObjectEvent):
     implements(IObjectWillBeRemovedEvent)
-
-class _ObjectOrderingEvent(object):
-    def __init__(self, object, parent, name, previous_index, new_index):
-        self.object = object
-        self.parent = parent
-        self.name = name
-        self.previous_index = previous_index
-        self.new_index = new_index
