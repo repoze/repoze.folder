@@ -1,3 +1,8 @@
+After 0.6 (unreleased)
+======================
+
+- Fixed persistence bugs in ordering support when adding or removing items.
+
 0.6 (2010-09-30)
 ================
 

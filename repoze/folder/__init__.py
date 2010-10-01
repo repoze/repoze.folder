@@ -37,11 +37,11 @@ class Folder(Persistent):
     _order = None
     def _get_order(self):
         if self._order is not None:
-            return self._order
+            return list(self._order)
         return self.data.keys()
     def _set_order(self, value):
         # XXX:  should we test against self.data.keys()?
-        self._order = [unicodify(x) for x in value]
+        self._order = tuple([unicodify(x) for x in value])
     def _del_order(self):
         del self._order
     order = property(_get_order, _set_order, _del_order)
@@ -141,7 +141,7 @@ class Folder(Persistent):
         self._num_objects.change(1)
 
         if self._order is not None:
-            self._order.append(name)
+            self._order += (name,)
 
         if send_events:
             objectEventNotify(ObjectAddedEvent(other, self, name))
@@ -175,7 +175,7 @@ class Folder(Persistent):
         self._num_objects.change(-1)
 
         if self._order is not None:
-            self._order.remove(name)
+            self._order = tuple([x for x in self._order if x != name])
 
         if send_events:
             objectEventNotify(ObjectRemovedEvent(other, self, name))
