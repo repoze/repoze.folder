@@ -51,12 +51,12 @@ class FolderTests(unittest.TestCase, PlacelessSetup):
 
     def test__iter__(self):
         folder = self._makeOne({'a':1, 'b':2})
-        self.assertEqual(list(folder.__iter__()), ['a', 'b'])
+        self.assertEqual(list(folder), ['a', 'b'])
 
     def test__iter___with_order(self):
         folder = self._makeOne({'a':1, 'b':2})
         folder.order = ['b', 'a']
-        self.assertEqual(list(folder.__iter__()), ['b', 'a'])
+        self.assertEqual(list(folder), ['b', 'a'])
 
     def test_values(self):
         folder = self._makeOne({'a':1, 'b':2})

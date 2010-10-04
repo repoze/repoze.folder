@@ -57,11 +57,10 @@ class Folder(Persistent):
     def keys(self):
         """ See IFolder.
         """
-        if self._order is not None:
-            return self._order
-        return self.data.keys()
+        return self.order
 
-    __iter__ = keys
+    def __iter__(self):
+        return iter(self.order)
 
     def values(self):
         """ See IFolder.
