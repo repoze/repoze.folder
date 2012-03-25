@@ -23,12 +23,20 @@ here = os.path.abspath(os.path.dirname(__file__))
 README = open(os.path.join(here, 'README.txt')).read()
 CHANGES = open(os.path.join(here, 'CHANGES.txt')).read()
 
-requires = [
-    'setuptools',
-    'ZODB3',
-    'zope.component',
-    'zope.interface',
-    ]
+if sys.version_info >= (2, 6): #pragma NO COVER Python >= 2.6
+    requires = [
+        'setuptools',
+        'ZODB3',
+        'zope.component',
+        'zope.interface',
+        ]
+else: #pragma NO COVER Python < 2.6
+    requires = [
+        'setuptools',
+        'ZODB3<3.10dev',
+        'zope.component<3.11dev',
+        'zope.interface<3.8dev',
+        ]
 
 tests_require = ['Sphinx', 'repoze.sphinx.autointerface', 'zope.testing']
 
