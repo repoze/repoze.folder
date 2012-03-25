@@ -1,6 +1,11 @@
 Next release
 ============
 
+- Added support for continuous integration using ``tox`` and ``jenkins``.
+
+- Added 'setup.py dev' alias (runs ``setup.py develop`` plus installs
+  ``nose`` and ``coverage``).
+
 - Moved to GitHub.
 
 0.6.2 (2010-10-04)
