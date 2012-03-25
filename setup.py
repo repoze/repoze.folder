@@ -15,6 +15,7 @@
 __version__ = '0.6.2'
 
 import os
+import sys
 
 from setuptools import setup, find_packages
 
@@ -28,6 +29,10 @@ requires = [
     'zope.component',
     'zope.interface',
     ]
+
+tests_require = ['Sphinx', 'repoze.sphinx.autointerface', 'zope.testing']
+
+testing_extras = ['nose', 'coverage']
 
 setup(name='repoze.folder',
       version=__version__,
@@ -52,10 +57,11 @@ setup(name='repoze.folder',
       namespace_packages=['repoze'],
       zip_safe=False,
       install_requires= requires,
-      tests_require = requires + ['Sphinx', 'repoze.sphinx.autointerface',
-                                  'zope.testing'],
+      tests_require = requires + tests_require,
       test_suite="repoze.folder",
       entry_points = """\
-      """
-      )
-
+      """,
+      extras_require = {
+        'testing':  requires + tests_require + testing_extras,
+      }
+)
