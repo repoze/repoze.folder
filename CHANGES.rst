@@ -4,6 +4,8 @@ Changes
 1.0 (unreleased)
 ----------------
 
+- Add support for PyPy.
+
 - Add support for Python 3.2, 3.3, and 3.4.
 
 - Add support for testing on Travis.
