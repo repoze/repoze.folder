@@ -31,7 +31,7 @@ requires = [
     'zope.interface',
     ]
 
-tests_require = ['Sphinx', 'repoze.sphinx.autointerface', 'zope.testing']
+docs_require = ['Sphinx', 'repoze.sphinx.autointerface']
 
 testing_extras = ['nose', 'coverage']
 
@@ -40,18 +40,17 @@ setup(name='repoze.folder',
       description='A ZODB folder implementation with object events',
       long_description=README + '\n\n' +  CHANGES,
       classifiers=[
-        "Development Status :: 3 - Alpha",
+        "Development Status :: 5 - Stable",
         "Intended Audience :: Developers",
         "Programming Language :: Python",
+        "Programming Language :: Python :: 2",
         "Programming Language :: Python :: 2.6",
         "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: Implementation :: CPython",
         "Topic :: Internet :: WWW/HTTP",
         "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
-        "Topic :: Internet :: WWW/HTTP :: WSGI",
-        "Topic :: Internet :: WWW/HTTP :: WSGI :: Middleware",
         ],
-      keywords='web wsgi zope',
+      keywords='web repoze folder',
       author="Agendaless Consulting",
       author_email="repoze-dev@lists.repoze.org",
       url="http://www.repoze.org",
@@ -61,11 +60,11 @@ setup(name='repoze.folder',
       namespace_packages=['repoze'],
       zip_safe=False,
       install_requires= requires,
-      tests_require = requires + tests_require,
       test_suite="repoze.folder",
       entry_points = """\
       """,
       extras_require = {
-        'testing':  requires + tests_require + testing_extras,
+        'docs':  requires + docs_require,
+        'testing':  testing_extras,
       }
 )
