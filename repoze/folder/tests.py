@@ -91,12 +91,12 @@ class FolderTests(unittest.TestCase, PlacelessSetup):
 
     def test__contains__(self):
         folder = self._makeOne({'a':1, 'b':2})
-        self.failUnless('a' in folder)
-        self.failIf('c' in folder)
+        self.assertTrue('a' in folder)
+        self.assertFalse('c' in folder)
 
     def test___nonzero__(self):
         folder = self._makeOne()
-        self.failUnless(folder)
+        self.assertTrue(folder)
 
     def test___setitem__nonstring(self):
         folder = self._makeOne()
@@ -124,11 +124,11 @@ class FolderTests(unittest.TestCase, PlacelessSetup):
         folder['a'] = dummy
         self.assertEqual(folder._num_objects(), 1)
         self.assertEqual(len(events), 2)
-        self.failUnless(IObjectWillBeAddedEvent.providedBy(events[0]))
+        self.assertTrue(IObjectWillBeAddedEvent.providedBy(events[0]))
         self.assertEqual(events[0].object, dummy)
         self.assertEqual(events[0].parent, folder)
         self.assertEqual(events[0].name, 'a')
-        self.failUnless(IObjectAddedEvent.providedBy(events[1]))
+        self.assertTrue(IObjectAddedEvent.providedBy(events[1]))
         self.assertEqual(events[1].object, dummy)
         self.assertEqual(events[1].parent, folder)
         self.assertEqual(events[1].name, 'a')
@@ -156,11 +156,11 @@ class FolderTests(unittest.TestCase, PlacelessSetup):
         folder.add('a', dummy, send_events=True)
         self.assertEqual(folder._num_objects(), 1)
         self.assertEqual(len(events), 2)
-        self.failUnless(IObjectWillBeAddedEvent.providedBy(events[0]))
+        self.assertTrue(IObjectWillBeAddedEvent.providedBy(events[0]))
         self.assertEqual(events[0].object, dummy)
         self.assertEqual(events[0].parent, folder)
         self.assertEqual(events[0].name, 'a')
-        self.failUnless(IObjectAddedEvent.providedBy(events[1]))
+        self.assertTrue(IObjectAddedEvent.providedBy(events[1]))
         self.assertEqual(events[1].object, dummy)
         self.assertEqual(events[1].parent, folder)
         self.assertEqual(events[1].name, 'a')
@@ -211,16 +211,16 @@ class FolderTests(unittest.TestCase, PlacelessSetup):
         del folder['a']
         self.assertEqual(folder._num_objects(), 0)
         self.assertEqual(len(events), 2)
-        self.failUnless(IObjectWillBeRemovedEvent.providedBy(events[0]))
-        self.failUnless(IObjectRemovedEvent.providedBy(events[1]))
+        self.assertTrue(IObjectWillBeRemovedEvent.providedBy(events[0]))
+        self.assertTrue(IObjectRemovedEvent.providedBy(events[1]))
         self.assertEqual(events[0].object, dummy)
         self.assertEqual(events[0].parent, folder)
         self.assertEqual(events[0].name, 'a')
         self.assertEqual(events[1].object, dummy)
         self.assertEqual(events[1].parent, folder)
         self.assertEqual(events[1].name, 'a')
-        self.failIf(hasattr(dummy, '__parent__'))
-        self.failIf(hasattr(dummy, '__name__'))
+        self.assertFalse(hasattr(dummy, '__parent__'))
+        self.assertFalse(hasattr(dummy, '__name__'))
 
     def test_remove_miss(self):
         folder = self._makeOne()
@@ -249,16 +249,16 @@ class FolderTests(unittest.TestCase, PlacelessSetup):
         folder.remove('a', send_events=True)
         self.assertEqual(folder._num_objects(), 0)
         self.assertEqual(len(events), 2)
-        self.failUnless(IObjectWillBeRemovedEvent.providedBy(events[0]))
-        self.failUnless(IObjectRemovedEvent.providedBy(events[1]))
+        self.assertTrue(IObjectWillBeRemovedEvent.providedBy(events[0]))
+        self.assertTrue(IObjectRemovedEvent.providedBy(events[1]))
         self.assertEqual(events[0].object, dummy)
         self.assertEqual(events[0].parent, folder)
         self.assertEqual(events[0].name, 'a')
         self.assertEqual(events[1].object, dummy)
         self.assertEqual(events[1].parent, folder)
         self.assertEqual(events[1].name, 'a')
-        self.failIf(hasattr(dummy, '__parent__'))
-        self.failIf(hasattr(dummy, '__name__'))
+        self.assertFalse(hasattr(dummy, '__parent__'))
+        self.assertFalse(hasattr(dummy, '__name__'))
 
     def test_remove_suppress_events(self):
         from repoze.folder.interfaces import IObjectEvent
@@ -274,8 +274,8 @@ class FolderTests(unittest.TestCase, PlacelessSetup):
         folder.remove('a', send_events=False)
         self.assertEqual(folder._num_objects(), 0)
         self.assertEqual(len(events), 0)
-        self.failIf(hasattr(dummy, '__parent__'))
-        self.failIf(hasattr(dummy, '__name__'))
+        self.assertFalse(hasattr(dummy, '__parent__'))
+        self.assertFalse(hasattr(dummy, '__name__'))
 
     def test_remove_with_order_removes_name(self):
         folder = self._makeOne()
@@ -301,16 +301,16 @@ class FolderTests(unittest.TestCase, PlacelessSetup):
         self.assertEqual(result, dummy)
         self.assertEqual(folder._num_objects(), 0)
         self.assertEqual(len(events), 2)
-        self.failUnless(IObjectWillBeRemovedEvent.providedBy(events[0]))
-        self.failUnless(IObjectRemovedEvent.providedBy(events[1]))
+        self.assertTrue(IObjectWillBeRemovedEvent.providedBy(events[0]))
+        self.assertTrue(IObjectRemovedEvent.providedBy(events[1]))
         self.assertEqual(events[0].object, dummy)
         self.assertEqual(events[0].parent, folder)
         self.assertEqual(events[0].name, 'a')
         self.assertEqual(events[1].object, dummy)
         self.assertEqual(events[1].parent, folder)
         self.assertEqual(events[1].name, 'a')
-        self.failIf(hasattr(dummy, '__parent__'))
-        self.failIf(hasattr(dummy, '__name__'))
+        self.assertFalse(hasattr(dummy, '__parent__'))
+        self.assertFalse(hasattr(dummy, '__name__'))
 
     def test_pop_fail_nodefault(self):
         folder = self._makeOne()
@@ -325,20 +325,21 @@ class FolderTests(unittest.TestCase, PlacelessSetup):
         folder = self._makeOne()
         folder.__name__ = 'thefolder'
         r = repr(folder)
-        self.failUnless(
+        self.assertTrue(
             "<repoze.folder.Folder object 'thefolder' at " in r)
-        self.failUnless(r.endswith('>'))
+        self.assertTrue(r.endswith('>'))
 
     def test_str(self):
         folder = self._makeOne()
         folder.__name__ = 'thefolder'
         r = str(folder)
-        self.failUnless(
+        self.assertTrue(
             "<repoze.folder.Folder object 'thefolder' at " in r)
-        self.failUnless(r.endswith('>'))
+        self.assertTrue(r.endswith('>'))
 
     def test_unresolveable_unicode_setitem(self):
-        name = unicode('La Pe\xc3\xb1a', 'utf-8').encode('latin-1')
+        from repoze.folder._compat import text_
+        name = text_(b'La Pe\xc3\xb1a', 'utf-8').encode('latin-1')
         folder = self._makeOne()
         self.assertRaises(TypeError, folder.__setitem__, name, DummyModel())
 
@@ -346,10 +347,11 @@ class FolderTests(unittest.TestCase, PlacelessSetup):
         name = 'La Pe\xc3\xb1a'
         folder = self._makeOne()
         folder[name] = DummyModel()
-        self.failUnless(folder.get(name))
+        self.assertTrue(folder.get(name))
 
     def test_unresolveable_unicode_getitem(self):
-        name = unicode('La Pe\xc3\xb1a', 'utf-8').encode('latin-1')
+        from repoze.folder._compat import text_
+        name = text_(b'La Pe\xc3\xb1a', 'utf-8').encode('latin-1')
         folder = self._makeOne()
         self.assertRaises(TypeError, folder.__getitem__, name)
 
@@ -357,7 +359,7 @@ class FolderTests(unittest.TestCase, PlacelessSetup):
         name = 'La Pe\xc3\xb1a'
         folder = self._makeOne()
         folder[name] = DummyModel()
-        self.failUnless(folder[name])
+        self.assertTrue(folder[name])
 
     def test_bwcompat_nolength_delitem(self):
         folder = self._makeOne()
@@ -384,23 +386,28 @@ class UnicodifyTests(unittest.TestCase):
         return unicodify(name, sysencoding)
 
     def test_default_encoding_works(self):
+        from repoze.folder._compat import text_
         result = self._callFUT('abc')
-        self.assertEqual(result, u'abc')
+        self.assertEqual(result, text_(b'abc'))
 
     def test_utf8_encoding_works(self):
-        result = self._callFUT('La Pe\xc3\xb1a')
-        self.assertEqual(result, unicode('La Pe\xc3\xb1a', 'utf-8'))
+        from repoze.folder._compat import text_
+        result = self._callFUT(b'La Pe\xc3\xb1a')
+        self.assertEqual(result, text_(b'La Pe\xc3\xb1a', 'utf-8'))
 
     def test_unicode_works(self):
-        result = self._callFUT(unicode('La Pe\xc3\xb1a', 'utf-8'))
-        self.assertEqual(result, unicode('La Pe\xc3\xb1a', 'utf-8'))
+        from repoze.folder._compat import text_
+        result = self._callFUT(text_(b'La Pe\xc3\xb1a', 'utf-8'))
+        self.assertEqual(result, text_(b'La Pe\xc3\xb1a', 'utf-8'))
         
     def test_unknown_encoding_breaks(self):
-        name = unicode('La Pe\xc3\xb1a', 'utf-8').encode('utf-16')
+        from repoze.folder._compat import text_
+        name = text_(b'La Pe\xc3\xb1a', 'utf-8').encode('utf-16')
         self.assertRaises(TypeError, self._callFUT, name)
 
     def test_sysencoding_utf8(self):
-        name = unicode('La Pe\xc3\xb1a', 'utf-8').encode('utf-16')
+        from repoze.folder._compat import text_
+        name = text_(b'La Pe\xc3\xb1a', 'utf-8').encode('utf-16')
         self.assertRaises(TypeError, self._callFUT, name, 'utf-8')
 
 class DummyModel:

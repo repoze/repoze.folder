@@ -1,24 +1,24 @@
 import sys
 
-from zope.interface import implements
 
-from zope.component.event import objectEventNotify
-
+from BTrees.OOBTree import OOBTree
+from BTrees.Length import Length
 from persistent import Persistent
+from zope.interface import implementer
+from zope.component.event import objectEventNotify
 
 from repoze.folder.interfaces import IFolder
 from repoze.folder.interfaces import marker
-
 from repoze.folder.events import ObjectAddedEvent
 from repoze.folder.events import ObjectWillBeAddedEvent
 from repoze.folder.events import ObjectRemovedEvent
 from repoze.folder.events import ObjectWillBeRemovedEvent
-
-from BTrees.OOBTree import OOBTree
-from BTrees.Length import Length
+from repoze.folder._compat import string_types
+from repoze.folder._compat import text_
 
 sysencoding = sys.getdefaultencoding()
 
+@implementer(IFolder)
 class Folder(Persistent):
     """ A folder implementation which acts much like a Python dictionary.
 
@@ -46,7 +46,6 @@ class Folder(Persistent):
         del self._order
     order = property(_get_order, _set_order, _del_order)
 
-    implements(IFolder)
 
     def __init__(self, data=None):
         if data is None:
@@ -89,6 +88,8 @@ class Folder(Persistent):
         """
         return True
 
+    __bool__ = __nonzero__
+
     def __getitem__(self, name):
         """ See IFolder.
         """
@@ -115,7 +116,7 @@ class Folder(Persistent):
     def add(self, name, other, send_events=True):
         """ See IFolder.
         """
-        if not isinstance(name, basestring):
+        if not isinstance(name, string_types):
             raise TypeError("Name must be a string rather than a %s" %
                             name.__class__.__name__)
         if not name:
@@ -203,7 +204,7 @@ def unicodify(name, encoding=None):
     if encoding is None:
         encoding = sysencoding
     try:
-        name = unicode(name)
+        name = text_(name, sysencoding)
     except UnicodeError:
         if encoding in ('utf-8', 'utf8'):
             raise TypeError(
@@ -211,7 +212,7 @@ def unicodify(name, encoding=None):
                 'encoding of "utf-8" (%s)' % name
                 )
         try:
-            name = unicode(name, 'utf-8')
+            name = text_(name, 'utf-8')
         except UnicodeError:
             raise TypeError(
                 'Byte string names must be decodeable using either the system '
