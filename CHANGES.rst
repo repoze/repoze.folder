@@ -1,7 +1,7 @@
 Changes
 =======
 
-1.0 (unreleased)
+1.0 (2014-12-28)
 ----------------
 
 - Add support for PyPy.

@@ -38,7 +38,7 @@ docs_require = ['Sphinx', 'repoze.sphinx.autointerface']
 testing_extras = ['nose', 'coverage']
 
 setup(name='repoze.folder',
-      version='1.0.dev0',
+      version='1.0',
       description='A ZODB folder implementation with object events',
       long_description=README + '\n\n' +  CHANGES,
       classifiers=[
