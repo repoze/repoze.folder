@@ -9,3 +9,4 @@ dist/
 .tox
 nosetests.xml
 repoze/folder/coverage.xml
+docs/_build/
