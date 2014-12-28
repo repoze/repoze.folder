@@ -4,7 +4,11 @@ Changes
 1.0 (unreleased)
 ----------------
 
-- Drop support for Python 2.4 / 2.5.
+- Add support for Python 3.2, 3.3, and 3.4.
+
+- Add support for testing on Travis. 
+
+- Drop support for Python 2.4 and 2.5.
 
 0.6.3 (2012-03-29)
 ------------------
