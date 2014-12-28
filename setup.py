@@ -12,15 +12,17 @@
 #
 ##############################################################################
 
-__version__ = '0.7dev'
-
 import os
 
 from setuptools import setup, find_packages
 
 here = os.path.abspath(os.path.dirname(__file__))
-README = open(os.path.join(here, 'README.txt')).read()
-CHANGES = open(os.path.join(here, 'CHANGES.txt')).read()
+
+with open(os.path.join(here, 'README.rst')) as f:
+    README = f.read()
+
+with open(os.path.join(here, 'CHANGES.rst')) as f:
+    CHANGES = f.read()
 
 requires = [
     'setuptools',
@@ -34,7 +36,7 @@ tests_require = ['Sphinx', 'repoze.sphinx.autointerface', 'zope.testing']
 testing_extras = ['nose', 'coverage']
 
 setup(name='repoze.folder',
-      version=__version__,
+      version='1.0.dev0',
       description='A ZODB folder implementation with object events',
       long_description=README + '\n\n' +  CHANGES,
       classifiers=[
