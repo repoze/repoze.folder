@@ -1,6 +1,11 @@
 Changes
 =======
 
+1.1 (2021-04-08)
+----------------
+
+- Add compatibility with latest zope.component versions
+
 1.0 (2014-12-28)
 ----------------
 
